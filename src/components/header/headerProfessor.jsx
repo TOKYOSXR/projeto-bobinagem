@@ -1,6 +1,8 @@
 "use client"
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function HeaderProfessor() {
     const router = useRouter();
@@ -14,16 +16,20 @@ export default function HeaderProfessor() {
 
     return (
         <>
-            <header  className="h-[100px] bg-[#02335E] p-5">
+            <header className="h-[100px] bg-[#02335E] p-5">
+
                 <section className="flex flex-row justify-between items-center">
-                    <div>
+                    <button
+                        onClick={handleClick}
+                        className="cursor-pointer"
+                    >
                         <Image
                             src="/logo-weg 1.png"
                             alt="Logo"
                             width={100}
                             height={100}
                         />
-                    </div>
+                    </button>
 
                     <div>
                         <nav className="flex items-center gap-10 pr-10">
