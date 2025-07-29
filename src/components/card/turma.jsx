@@ -57,7 +57,7 @@ export default function CardTurma({ totalCard }) {
                         <p className="text-[#02335E] text-2xl font-semibold">Visualizado Recentemente</p>
                     </div>
 
-                    {cardsArray.map((card) => {
+                    {cardsArray.map((card) => (
                         <button
                             key={card}
                             className="flex justify-between cursor-pointer">
@@ -74,7 +74,7 @@ export default function CardTurma({ totalCard }) {
                                 <p className="text-2xl">Hoje</p>
                             </div>
                         </button>
-                    })}
+                    ))}
 
                 </div>
             )}

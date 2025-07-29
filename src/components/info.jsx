@@ -1,8 +1,16 @@
-'use client'
+"use client"
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
-export default function Info({ totalInfo, nomeConteudo1, nomeConteudo2 }) {
+export default function Info({ classEdit, totalInfo, nomeConteudo1, nomeConteudo2, paginaAluno }) {
+    const router = useRouter();
+    let handleClickAluno
+    if (paginaAluno) {
+        handleClickAluno = () => {
+            router.push("/paginaProfessor/turma/aluno")
+        };
+    }
 
     const infoArray = Array.from({ length: totalInfo }, (_, i) => i);
 
@@ -10,16 +18,22 @@ export default function Info({ totalInfo, nomeConteudo1, nomeConteudo2 }) {
         <>
             <div className=' max-h-[35rem] overflow-auto'>
                 {infoArray.map((info) => (
-                    <div className="flex items-center w-full mt-2">
-
-                        <div key={info}
-                            className="flex justify-between items-center bg-[#4E4E4E]/18 w-full rounded-lg px-3 py-2">
+                    <div
+                        key={info}
+                        className="flex items-center w-full mt-2">
+                        <div className="flex justify-between items-center bg-[#4E4E4E]/18 w-full rounded-lg px-3 py-2">
                             <div className='flex flex-col'>
-                                <div className="text-lg text-[#626262] font-bold">
-                                    <p>{nomeConteudo1}</p>
+                                <div>
+                                    <button
+                                        onClick={handleClickAluno}
+                                        className={`${classEdit} text-lg text-[#626262] font-bold`}>{nomeConteudo1}
+                                    </button>
                                 </div>
-                                <div className="text-sm text-[#626262]">
-                                    <p>{nomeConteudo2}</p>
+                                <div>
+                                    <button
+                                        onClick={handleClickAluno}
+                                        className={`${classEdit} text-sm text-[#626262]`}>{nomeConteudo2}
+                                    </button>
                                 </div>
                             </div>
                             <Image
