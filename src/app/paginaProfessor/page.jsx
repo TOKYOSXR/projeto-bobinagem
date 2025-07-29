@@ -1,20 +1,21 @@
+import CardTurma from "@/components/card/turma";
 import HeaderProfessor from "@/components/header/headerProfessor";
-import Image from "next/image";
 
 export default function PaginaProfessor() {
+
   return (
     <>
       <HeaderProfessor />
-      <section className="pt-10 px-20">
+      <div className="py-10 px-20">
         <div>
-          <p className="text-[#02335E] text-2xl">Seja bem-vindo Professor X!</p>
+          <p className="text-[#02335E] text-3xl">Seja bem-vindo Professor X!</p>
         </div>
-        <div>
+        <section>
           <div>
-            
+            <CardTurma totalCard={8} />
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </>
   );
 }
