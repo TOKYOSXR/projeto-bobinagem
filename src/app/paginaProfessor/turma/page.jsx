@@ -23,7 +23,7 @@ export default function PaginaProfessor() {
           <div className="flex flex-col w-3xl">
             <p className="text-2xl font-medium mb-4">Alunos</p>
             <BuscaEspecifica conteudo="Procure alunos" />
-            <Info totalInfo={8} nomeConteudo1="Artur Silva" nomeConteudo2="artur_silva@weg.net" />
+            <Info totalInfo={8} nomeConteudo1="Artur Silva" nomeConteudo2="artur_silva@weg.net" paginaAluno={true} classEdit="cursor-pointer" />
           </div>
 
           <div className="flex flex-col w-3xl">
