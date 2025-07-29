@@ -4,12 +4,12 @@ export default function Header() {
     return (
         <>
             <header>
-                <nav className="h-[100px] bg-[#02335E] p-5">
+                <nav className="h-[80px] bg-[#02335E] p-6">
                     <Image
                         src="/logo-weg 1.png"
                         alt="Logo"
-                        width={100}
-                        height={100}
+                        width={70}
+                        height={70}
                     />
                 </nav>
                 
