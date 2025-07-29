@@ -5,7 +5,7 @@ export default function Header() {
         <>
             <header>
                 <nav className="h-[100px] bg-[#02335E] p-5">
-                    <Image className=""
+                    <Image
                         src="/logo-weg 1.png"
                         alt="Logo"
                         width={100}

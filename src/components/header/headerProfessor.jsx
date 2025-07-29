@@ -6,7 +6,7 @@ export default function HeaderProfessor() {
             <header  className="h-[100px] bg-[#02335E] p-5">
                 <section className="flex flex-row justify-between items-center">
                     <div>
-                        <Image className=""
+                        <Image
                             src="/logo-weg 1.png"
                             alt="Logo"
                             width={100}
@@ -16,13 +16,13 @@ export default function HeaderProfessor() {
 
                     <div>
                         <nav className="flex items-center gap-10 pr-10">
-                            <Image className=""
+                            <Image
                                 src="/headerProfessor/+.png"
                                 alt="adicionar"
                                 width={30}
                                 height={30}
                             />
-                            <Image className=""
+                            <Image
                                 src="/headerProfessor/hamb.png"
                                 alt="hamburguer"
                                 width={35}

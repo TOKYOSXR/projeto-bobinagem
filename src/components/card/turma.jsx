@@ -2,23 +2,32 @@
 import { useState } from "react";
 import Image from "next/image";
 import Buscar from "../pesquisa/buscar";
+import { useRouter } from 'next/navigation';
 
 export default function CardTurma({ totalCard }) {
+    const router = useRouter();
     const [visual, setVisual] = useState(true);
     const [lista, setLista] = useState(false);
 
     const cardsArray = Array.from({ length: totalCard }, (_, i) => i);
 
+    const handleClick = () => {
+        router.push(`/paginaProfessor/turma`);
+    };
+
     return (
         <>
             <Buscar visual={visual} lista={lista} setVisual={setVisual} setLista={setLista} />
+
             {visual && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-10 gap-10 w-full">
+                <div
+                    onClick={handleClick}
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-10 gap-10 w-full">
                     {cardsArray.map((card) => (
-                        <div
+                        <button
                             key={card}
                         >
-                            <div className="flex flex-col gap-20 bg-[#02335E] rounded-lg shadow-2xl w-full">
+                            <div className="flex flex-col gap-20 bg-[#02335E] rounded-lg shadow-2xl w-full cursor-pointer">
                                 <div>
                                     <Image
                                         className="max-h-20"
@@ -35,7 +44,7 @@ export default function CardTurma({ totalCard }) {
                                 </div>
 
                             </div>
-                        </div>
+                        </button>
                     ))}
                 </div>
             )}
@@ -49,9 +58,9 @@ export default function CardTurma({ totalCard }) {
                     </div>
 
                     {cardsArray.map((card) => {
-                        <div
+                        <button
                             key={card}
-                            className="flex justify-between">
+                            className="flex justify-between cursor-pointer">
                             <div className="flex flex-col items-center">
                                 <p className="text-white opacity-0 pointer-events-none text-2xl font-semibold">Nome da Turma</p>
                                 <p className="text-2xl">MI-75 PSIN 2023/2</p>
@@ -64,7 +73,7 @@ export default function CardTurma({ totalCard }) {
                                 <p className="text-white opacity-0 pointer-events-none text-2xl font-semibold">Visualizado Recentemente</p>
                                 <p className="text-2xl">Hoje</p>
                             </div>
-                        </div>
+                        </button>
                     })}
 
                 </div>
