@@ -27,7 +27,7 @@ export default function CardTurma({ totalCard, couteudo1}) {
                         <button
                             key={card}
                         >
-                            <div className="flex flex-col gap-20 bg-[#02335E] rounded-lg shadow-2xl w-full cursor-pointer">
+                            <div className="flex flex-col gap-10 bg-[#02335E] rounded-lg shadow-2xl w-full cursor-pointer">
                                 <div>
                                     <Image
                                         className="max-h-20"
@@ -37,7 +37,7 @@ export default function CardTurma({ totalCard, couteudo1}) {
                                         height={600}
                                     />
                                 </div>
-                                <div className="pb-20">
+                                <div className="pb-16">
                                     <p className="text-white text-2xl">
                                         {couteudo1}
                                     </p>
@@ -51,10 +51,10 @@ export default function CardTurma({ totalCard, couteudo1}) {
 
             {lista && (
                 <div className="flex flex-col">
-                    <div className="flex mt-20 justify-between">
-                        <p className="text-[#02335E] text-2xl font-semibold">Nome da Turma</p>
-                        <p className="text-[#02335E] text-2xl font-semibold">Status</p>
-                        <p className="text-[#02335E] text-2xl font-semibold">Visualizado Recentemente</p>
+                    <div className="flex mt-10 justify-between">
+                        <p className="text-[#02335E] text-xl font-semibold">Nome da Turma</p>
+                        <p className="text-[#02335E] text-xl font-semibold">Status</p>
+                        <p className="text-[#02335E] text-xl font-semibold">Visualizado Recentemente</p>
                     </div>
 
                     {cardsArray.map((card, index) => (
@@ -62,16 +62,16 @@ export default function CardTurma({ totalCard, couteudo1}) {
                             key={card}
                             className="flex justify-between cursor-pointer">
                             <div className="flex flex-col items-center">
-                                <p className="text-white opacity-0 pointer-events-none text-2xl font-semibold">Nome da Turma</p>
-                                <p className="text-2xl">MI-75 PSIN 2023/2</p>
+                                <p className="text-white opacity-0 pointer-events-none text-xl font-semibold">Nome da Turma</p>
+                                <p className="text-xl">MI-75 PSIN 2023/2</p>
                             </div>
                             <div className="flex flex-col items-center">
-                                <p className="text-white opacity-0 pointer-events-none text-2xl font-semibold">Status</p>
-                                <p className="text-2xl">Finalizado</p>
+                                <p className="text-white opacity-0 pointer-events-none text-xl font-semibold">Status</p>
+                                <p className="text-xl">Finalizado</p>
                             </div>
                             <div className="flex flex-col items-center">
-                                <p className="text-white opacity-0 pointer-events-none text-2xl font-semibold">Visualizado Recentemente</p>
-                                <p className="text-2xl">Hoje</p>
+                                <p className="text-white opacity-0 pointer-events-none text-xl font-semibold">Visualizado Recentemente</p>
+                                <p className="text-xl">Hoje</p>
                             </div>
                         </button>
                     ))}
