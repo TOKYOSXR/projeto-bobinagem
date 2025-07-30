@@ -4,7 +4,7 @@ import Image from "next/image";
 import Buscar from "../pesquisa/buscar";
 import { useRouter } from 'next/navigation';
 
-export default function CardTurma({ totalCard }) {
+export default function CardTurma({ totalCard, couteudo1}) {
     const router = useRouter();
     const [visual, setVisual] = useState(true);
     const [lista, setLista] = useState(false);
@@ -37,9 +37,9 @@ export default function CardTurma({ totalCard }) {
                                         height={600}
                                     />
                                 </div>
-                                <div className="pl-6 pb-20">
+                                <div className="pb-20">
                                     <p className="text-white text-2xl">
-                                        MI-75 PSIN 2023/2
+                                        {couteudo1}
                                     </p>
                                 </div>
 
@@ -57,7 +57,7 @@ export default function CardTurma({ totalCard }) {
                         <p className="text-[#02335E] text-2xl font-semibold">Visualizado Recentemente</p>
                     </div>
 
-                    {cardsArray.map((card) => (
+                    {cardsArray.map((card, index) => (
                         <button
                             key={card}
                             className="flex justify-between cursor-pointer">

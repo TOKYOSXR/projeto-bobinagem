@@ -10,6 +10,22 @@ export default function HeaderProfessor() {
     const [hamburguer, setHamburguer] = useState(false)
     const [add, setAdd] = useState(false)
 
+    const handleClickHamb = () => {
+        if (hamburguer) {
+            setHamburguer(false)
+        } else {
+            setHamburguer(true)
+        }
+    }
+
+    const handleClickAdd = () => {
+        if (add) {
+            setAdd(false)
+        } else {
+            setAdd(true)
+        }
+    }
+
     const handleClick = () => {
         router.push("/paginaProfessor")
     };
@@ -34,7 +50,7 @@ export default function HeaderProfessor() {
                     <div>
                         <nav className="flex items-center gap-10 pr-10">
                             <button
-                                onClick={() => setAdd(true)}
+                                onClick={handleClickAdd}
                                 className="cursor-pointer"
                             >
                                 <Image
@@ -45,7 +61,7 @@ export default function HeaderProfessor() {
                                 />
                             </button>
                             <button
-                                onClick={() => setHamburguer(true)}
+                                onClick={handleClickHamb}
                                 className="cursor-pointer"
                             >
                                 <Image

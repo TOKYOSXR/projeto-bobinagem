@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-export default function Info({ classEdit, totalInfo, nomeConteudo1, nomeConteudo2, paginaAluno }) {
+export default function Info({ classEdit, totalInfo, nomeConteudo1, nomeConteudo2, paginaAluno, imagemCopiar }) {
     const router = useRouter();
     let handleClickAluno
     if (paginaAluno) {
@@ -36,13 +36,15 @@ export default function Info({ classEdit, totalInfo, nomeConteudo1, nomeConteudo
                                     </button>
                                 </div>
                             </div>
-                            <Image
-                                className='max-h-8 cursor-pointer'
-                                src="/copiar.png"
-                                alt="Lupa"
-                                width={32}
-                                height={32}
-                            />
+                            {imagemCopiar && (
+                                <Image
+                                    className='max-h-8 cursor-pointer'
+                                    src="/copiar.png"
+                                    alt="Lupa"
+                                    width={32}
+                                    height={32}
+                                />
+                            )}
                         </div>
 
                     </div>

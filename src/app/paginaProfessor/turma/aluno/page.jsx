@@ -8,11 +8,11 @@ export default function PaginaProfessor() {
       <HeaderProfessor />
       <div className="py-10 px-20">
         <div>
-          <p className="text-[#02335E] text-3xl">Seja bem-vindo Professor X!</p>
+          <p className="text-[#02335E] text-3xl">Artur Silva</p>
         </div>
         <section>
           <div>
-            <CardTurma couteudo1="MI-75 PSIN 2023/2" totalCard={8} />
+            <CardTurma couteudo1="Atividade 01" totalCard={8} />
           </div>
         </section>
       </div>
