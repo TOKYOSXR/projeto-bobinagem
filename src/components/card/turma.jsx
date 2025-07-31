@@ -57,7 +57,7 @@ export default function CardTurma({ totalCard, couteudo1}) {
                         <p className="text-[#02335E] text-xl font-semibold">Visualizado Recentemente</p>
                     </div>
 
-                    {cardsArray.map((card, index) => (
+                    {cardsArray.map((card) => (
                         <button
                             key={card}
                             className="flex justify-between cursor-pointer">
