@@ -1,4 +1,4 @@
-import CardTurma from "@/components/card/turma";
+import CardAluno from "@/components/card/aluno";
 import HeaderProfessor from "@/components/header/headerProfessor";
 
 export default function PaginaProfessor() {
@@ -12,7 +12,7 @@ export default function PaginaProfessor() {
         </div>
         <section>
           <div>
-            <CardTurma couteudo1="Atividade 01" totalCard={8} />
+            <CardAluno couteudo1="Atividade 01" totalCard={8} />
           </div>
         </section>
       </div>

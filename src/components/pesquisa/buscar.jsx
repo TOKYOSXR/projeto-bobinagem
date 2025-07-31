@@ -1,10 +1,11 @@
 'use client'
 
-
 import Image from "next/image";
 import { useState } from "react";
 
-export default function Buscar({ visual, lista, setVisual, setLista }) {
+export default function Buscar({ visual, lista, setVisual, setLista, roleAluno }) {
+    const[mono, setMono] = useState(true);
+    const [trifa, setTrifa] = useState(false);
 
     const handleClickVisual = () => {
         setVisual(true);
@@ -15,6 +16,16 @@ export default function Buscar({ visual, lista, setVisual, setLista }) {
         setLista(true);
         setVisual(false);
     };
+
+    const handleClickMono = () => {
+        setMono(true)
+        setTrifa(false)
+    }
+
+    const handleClickTri = () => {
+        setTrifa(true)
+        setMono(false)
+    }
 
     return (
         <>
@@ -35,6 +46,41 @@ export default function Buscar({ visual, lista, setVisual, setLista }) {
                         <p className="text-xl">Pesquisa Turma</p>
                     </div>
                 </div>
+
+                {roleAluno && (
+                    <>
+                        {mono ? (
+                            <div className="flex items-center gap-10 w-1/3 rounded-lg">
+                                <button
+                                    onClick={handleClickMono}
+                                    className="text-white bg-[#02335E] py-1 px-3 rounded-lg cursor-pointer">
+                                    <p className="text-xl whitespace-nowrap">MONOFÁSICO</p>
+                                </button>
+                                <button
+                                    onClick={handleClickTri}
+                                    className="text-black py-1 px-3 rounded-lg cursor-pointer">
+                                    <p className="text-xl whitespace-nowrap">TRIFÁSICO</p>
+                                </button>
+                            </div>
+                        ) :
+                            <>
+                                <div className="flex items-center gap-10 w-1/3 rounded-lg">
+                                    <button
+                                        onClick={handleClickMono}
+                                        className="text-black py-1 px-3 rounded-lg cursor-pointer">
+                                        <p className="text-xl whitespace-nowrap">Monofásico</p>
+                                    </button>
+                                    <button
+                                        onClick={handleClickTri}
+                                        className="text-white bg-[#02335E] py-1 px-3 rounded-lg cursor-pointer">
+                                        <p className="text-xl whitespace-nowrap">Trifásico</p>
+                                    </button>
+                                </div>
+                            </>
+                        }
+
+                    </>
+                )}
 
                 <div className="flex items-center gap-4">
                     <button
