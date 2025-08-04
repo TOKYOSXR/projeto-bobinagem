@@ -68,12 +68,12 @@ export default function Buscar({ visual, lista, setVisual, setLista, roleAluno }
                                     <button
                                         onClick={handleClickMono}
                                         className="text-black py-1 px-3 rounded-lg cursor-pointer">
-                                        <p className="text-xl whitespace-nowrap">Monofásico</p>
+                                        <p className="text-xl whitespace-nowrap">MONOFÁSICO</p>
                                     </button>
                                     <button
                                         onClick={handleClickTri}
                                         className="text-white bg-[#02335E] py-1 px-3 rounded-lg cursor-pointer">
-                                        <p className="text-xl whitespace-nowrap">Trifásico</p>
+                                        <p className="text-xl whitespace-nowrap">TRIFÁSICO</p>
                                     </button>
                                 </div>
                             </>
