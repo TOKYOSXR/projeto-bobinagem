@@ -9,7 +9,6 @@ export default function PaginaEsquemas() {
     useEffect(() => {
 
         let pontoInicial = null;
-        let pontoBaseInferior = null;
         const triangulos = [];
         const ranhurasBloqueadas = new Set();
         const alturasPorDistancia = new Map();
@@ -19,106 +18,6 @@ export default function PaginaEsquemas() {
         let timeoutClick = null;
         let contadorU = 0;
         let corAtualTriangulo = 'black';
-
-        // Código das ranhuras inferiores
-        document.querySelectorAll('#ranhuras-inferior .w-1').forEach(ranhura => {
-            ranhura.classList.add('ranhura', 'inferior');
-            ranhura.addEventListener('click', (event) => {
-                if (ranhurasUsadas.has(ranhura)) return;
-                clearTimeout(timeoutClick);
-                timeoutClick = setTimeout(() => {
-                    const svg = document.getElementById('conexoes-svg');
-                    const pos = ranhura.getBoundingClientRect();
-                    const svgRect = svg.getBoundingClientRect();
-                    const x = pos.left + pos.width / 2 - svgRect.left;
-                    const y = pos.top - svgRect.top;
-
-                    if (!pontoU) {
-                        pontoU = { ran: ranhura, x, y };
-                        ranhura.style.backgroundColor = 'red';
-                    } else {
-                        const x1 = pontoU.x;
-                        const x2 = x;
-                        const y1 = pontoU.y;
-                        const y2 = y;
-                        const baseInferior = Math.max(y1, y2);
-                        contadorU++;
-                        const incrementoAltura = 20;
-                        const altura = 50 + contadorU * incrementoAltura;
-                        const alturaMaximaPermitida = Math.min(y1, y2) + 320;
-                        const yBase = Math.min(baseInferior + altura, alturaMaximaPermitida);
-
-                        const grupoU = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                        grupoU.setAttribute("pointer-events", "visiblePainted");
-
-                        const criarLinha = (x1, y1, x2, y2) => {
-                            const linha = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                            linha.setAttribute('x1', x1);
-                            linha.setAttribute('y1', y1);
-                            linha.setAttribute('x2', x2);
-                            linha.setAttribute('y2', y2);
-                            linha.setAttribute('stroke', corAtualTriangulo);
-                            linha.setAttribute('stroke-width', '3');
-                            return linha;
-                        };
-
-                        grupoU.appendChild(criarLinha(x1, y1, x1, yBase));
-                        grupoU.appendChild(criarLinha(x2, y2, x2, yBase));
-                        grupoU.appendChild(criarLinha(Math.min(x1, x2), yBase, Math.max(x1, x2), yBase));
-
-                        grupoU._ranhura1 = pontoU.ran;
-                        grupoU._ranhura2 = ranhura;
-
-                        grupoU.addEventListener("click", (e) => {
-                            e.stopPropagation();
-                            mostrarPopup(e.clientX, e.clientY, grupoU);
-                        });
-
-                        svg.appendChild(grupoU);
-
-                        ranhurasUsadas.add(ranhura);
-                        ranhurasUsadas.add(pontoU.ran);
-
-                        ranhura.style.backgroundColor = 'gray';
-                        pontoU.ran.style.backgroundColor = 'gray';
-                        pontoU = null;
-                    }
-                }, tempoClique);
-            });
-
-            ranhura.addEventListener('dblclick', () => {
-                clearTimeout(timeoutClick);
-                if (ranhurasUsadas.has(ranhura)) return;
-                const svg = document.getElementById('conexoes-svg');
-                const pos = ranhura.getBoundingClientRect();
-                const svgRect = svg.getBoundingClientRect();
-                const x = pos.left + pos.width / 2 - svgRect.left;
-                const y = pos.top - svgRect.top;
-                const altura = 350;
-
-                const linha = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                linha.setAttribute('x1', x);
-                linha.setAttribute('y1', y);
-                linha.setAttribute('x2', x);
-                linha.setAttribute('y2', y + altura);
-                linha.setAttribute('stroke', corAtualTriangulo);
-                linha.setAttribute('stroke-width', '3');
-                linha.setAttribute('pointer-events', 'visiblePainted');
-
-                linha._ranhura = ranhura;
-                linha.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    mostrarPopup(e.clientX, e.clientY, linha);
-                });
-
-                svg.appendChild(linha);
-                ranhurasUsadas.add(ranhura);
-                ranhura.style.backgroundColor = 'blue';
-                if (pontoU && pontoU.ran === ranhura) {
-                    pontoU = null;
-                }
-            });
-        });
 
         // Código das ranhuras superiores
         let ultimoCliqueSuperior = 0;
@@ -243,39 +142,40 @@ export default function PaginaEsquemas() {
                 </div>
             </div>
 
-            <section className="flex justify-center items-center min-h-screen">
-                <div className="relative flex flex-col items-center justify-center h-full w-full">
+            <section className="flex justify-center items-center min-h-screen overflow-x-auto">
+                <div className="scale-[0.50] md:scale-[0.70] 2xl:scale-[0.90] origin-center">
+                    <div className="relative flex flex-col items-center justify-center h-full w-full">
+                        <svg
+                            id="conexoes-svg"
+                            width="100%"
+                            height="100%"
+                            className="absolute top-0 left-0 pointer-events-none"
+                        ></svg>
 
-                    <svg
-                        id="conexoes-svg"
-                        width="100%"
-                        height="100%"
-                        className="absolute top-0 left-0 pointer-events-none"
-                    ></svg>
+                        {/* Ranhuras Superiores */}
+                        <div className="flex flex-row justify-center items-end gap-[32px] md:gap-[54px] mb-4" id="ranhuras-superior">
+                            <div className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
+                            {[...Array(23)].map((_, index) => (
+                                <div key={index} className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
+                            ))}
+                        </div>
 
-                    {/* Ranhuras Superiores */}
-                    <div className="flex flex-row justify-center items-end gap-[54px] mb-5" id="ranhuras-superior">
-                        <div className="w-1 h-9 bg-black relative cursor-pointer"></div>
-                        {[...Array(23)].map((_, index) => (
-                            <div key={index} className="w-1 h-9 bg-black relative cursor-pointer"></div>
-                        ))}
-                    </div>
+                        {/* Numeração */}
+                        <div className="flex justify-center gap-[34px] md:gap-[56px] mb-5">
+                            {[...Array(24)].map((_, index) => (
+                                <div key={index} className="w-[2px] text-center text-xs md:text-base -translate-x-[5px]">
+                                    {index + 1}
+                                </div>
+                            ))}
+                        </div>
 
-                    {/* Numeração */}
-                    <div className="flex justify-center gap-[56px] mb-5">
-                        {[...Array(24)].map((_, index) => (
-                            <div key={index} className="w-[2px] text-center text-base -translate-x-[5px]">
-                                {index + 1}
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Ranhuras Inferiores */}
-                    <div className="flex flex-row justify-center items-end gap-[54px]" id="ranhuras-inferior">
-                        <div className="w-1 h-9 bg-black relative cursor-pointer"></div>
-                        {[...Array(23)].map((_, index) => (
-                            <div key={index} className="w-1 h-9 bg-black relative cursor-pointer"></div>
-                        ))}
+                        {/* Ranhuras Inferiores */}
+                        <div className="flex flex-row justify-center items-end gap-[32px] md:gap-[54px]" id="ranhuras-inferior">
+                            <div className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
+                            {[...Array(23)].map((_, index) => (
+                                <div key={index} className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>
