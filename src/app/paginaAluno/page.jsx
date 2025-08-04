@@ -1,13 +1,13 @@
 'use client';
 
 import CardAluno from "@/components/card/aluno";
-import HeaderProfessor from "@/components/header/headerProfessor";
+import HeaderAluno from "@/components/header/headerAluno";
 
 export default function PaginaAluno() {
 
     return (
         <>
-            <HeaderProfessor />
+            <HeaderAluno />
             <div className="py-10 px-20">
                 <div>
                     <p className="text-[#02335E] text-3xl">Artur Silva</p>
