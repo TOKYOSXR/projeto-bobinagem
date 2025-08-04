@@ -230,7 +230,7 @@ export default function PaginaEsquemas() {
     }, []);
 
     return (
-        <>
+        <div className="">
             <Header />
             <SidebarEsquerdo />
 
@@ -279,6 +279,6 @@ export default function PaginaEsquemas() {
                     </div>
                 </div>
             </section>
-        </>
+        </div>
     );
 }
