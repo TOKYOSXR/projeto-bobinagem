@@ -161,6 +161,8 @@ export default function PaginaEsquemas() {
                 <div className="scale-[0.50] md:scale-[0.70] 2xl:scale-[0.90] origin-center">
                     <div className="relative flex flex-col items-center justify-center h-full w-full min-h-[350px]">
                         {/* SVG para conexões */}
+                <div className="scale-[0.50] md:scale-[0.70] 2xl:scale-[0.80] origin-center">
+                    <div className="relative flex flex-col items-center justify-center h-full w-full">
                         <svg
                             id="conexoes-svg"
                             width="1000"

@@ -8,11 +8,11 @@ export default function DropdownRadio({ label, options, selected, onChange }) {
     options.find((opt) => opt.value === selected)?.label || label;
 
   return (
-    <div className="relative w-64 text-sm">
+    <div className="relative w-full text-sm">
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full rounded-full px-4 py-2 text-left bg-white border border-gray-300 flex items-center justify-between"
+        className="w-full h-9 rounded-full px-4 py-1  bg-white flex items-center justify-between"
       >
         <span className={selected ? 'text-black' : 'text-gray-400'}>
           {selectedLabel}
@@ -21,12 +21,12 @@ export default function DropdownRadio({ label, options, selected, onChange }) {
       </button>
 
       {open && (
-        <div className="absolute z-10 mt-2 w-full bg-white rounded-md border border-gray-300 shadow-lg">
+        <div className="absolute z-10 mt-2 w-full bg-white rounded-md  shadow-lg">
           <ul className="py-2">
             {options.map((opt) => (
               <li
                 key={opt.value}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
+                className="px-6 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2 text-black"
                 onClick={() => {
                   onChange(opt.value);
                   setOpen(false);
