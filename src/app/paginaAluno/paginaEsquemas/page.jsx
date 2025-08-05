@@ -161,38 +161,40 @@ export default function PaginaEsquemas() {
                 <div className="scale-[0.50] md:scale-[0.70] 2xl:scale-[0.90] origin-center">
                     <div className="relative flex flex-col items-center justify-center h-full w-full min-h-[350px]">
                         {/* SVG para conexões */}
-                <div className="scale-[0.50] md:scale-[0.70] 2xl:scale-[0.80] origin-center">
-                    <div className="relative flex flex-col items-center justify-center h-full w-full">
-                        <svg
-                            id="conexoes-svg"
-                            width="1000"
-                            height="350"
-                            className="absolute top-0 left-0 pointer-events-none"
-                        ></svg>
+                        <div className="scale-[0.50] md:scale-[0.70] 2xl:scale-[0.80] origin-center">
+                            <div className="relative flex flex-col items-center justify-center h-full w-full">
+                                <svg
+                                    id="conexoes-svg"
+                                    width="1000"
+                                    height="350"
+                                    className="absolute top-0 left-0 pointer-events-none"
+                                ></svg>
 
-                        {/* Ranhuras Superiores */}
-                        <div className="flex flex-row justify-center items-end gap-[32px] md:gap-[54px] mb-4" id="ranhuras-superior">
-                            <div className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
-                            {[...Array(23)].map((_, index) => (
-                                <div key={index} className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
-                            ))}
-                        </div>
-
-                        {/* Numeração */}
-                        <div className="flex justify-center gap-[34px] md:gap-[56px] mb-5">
-                            {[...Array(24)].map((_, index) => (
-                                <div key={index} className="w-[2px] text-center text-xs md:text-base -translate-x-[5px]">
-                                    {index + 1}
+                                {/* Ranhuras Superiores */}
+                                <div className="flex flex-row justify-center items-end gap-[32px] md:gap-[54px] mb-4" id="ranhuras-superior">
+                                    <div className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
+                                    {[...Array(23)].map((_, index) => (
+                                        <div key={index} className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
 
-                        {/* Ranhuras Inferiores */}
-                        <div className="flex flex-row justify-center items-end gap-[32px] md:gap-[54px]" id="ranhuras-inferior">
-                            <div className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
-                            {[...Array(23)].map((_, index) => (
-                                <div key={index} className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
-                            ))}
+                                {/* Numeração */}
+                                <div className="flex justify-center gap-[34px] md:gap-[56px] mb-5">
+                                    {[...Array(24)].map((_, index) => (
+                                        <div key={index} className="w-[2px] text-center text-xs md:text-base -translate-x-[5px]">
+                                            {index + 1}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Ranhuras Inferiores */}
+                                <div className="flex flex-row justify-center items-end gap-[32px] md:gap-[54px]" id="ranhuras-inferior">
+                                    <div className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
+                                    {[...Array(23)].map((_, index) => (
+                                        <div key={index} className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
