@@ -1,5 +1,6 @@
 import DropdownRadio from "./sidebar-Inputs/DropdownRadio"
 import PassoPrincipal from "./sidebar-Inputs/PassoPrincipal"
+import TabelaReferenciaTerminais from "./sidebar-Inputs/TabelaReferenciaTerminais"
 import { useState } from "react"
 
 export default function SidebarEsquerdo() {
@@ -9,7 +10,7 @@ export default function SidebarEsquerdo() {
     const [sentidoDeRotacao, setSentidoDeRotacao] = useState(null);
     const [tipoDeInterligacao, setTipoDeInterligacao] = useState(null);
     const [passoPrincipal, setPassoPrincipal] = useState(['1', '', '', '', '', '']);
-    const [QtdCabos, setQtdCabos] = useState(null);
+    
 
     const tipoDeCamadaOptions = [
         { label: 'Simples', value: 'simples' },
@@ -44,15 +45,12 @@ export default function SidebarEsquerdo() {
         { label: '6x Paralelo', value: '6x paralelo' }
     ];
 
-    const QtdCabos =[
-        { label: 'Y - 3 cabos', value: 'Y - 3 cabos' },
-        { label: '△ - 3 cabos', value: '△ - 3 cabos'},
-    ]
+   
 
     return (
-        <div className="fixed left-0 h-full w-[390px] max-w-xs p-4 bg-[#02335E] text-white space-y-3 z-10 ">
-            <label className="flex items-center flex-col gap-10 p-4">
-                <input type="text" className="bg-white rounded-full focus:outline-none text-black px-6 py-1 w-full h-9" placeholder="Ranhuras" />
+        <div className="fixed left-0 h-full w-[390px] max-w-xs px-4 bg-[#02335E] text-white space-y-3 z-10 ">
+            <label className="flex items-center flex-col gap-5 p-4">
+                <input type="text" className="bg-white rounded-full focus:outline-none text-black px-6 py-1 w-full h-10 " placeholder="Ranhuras" />
 
                 <DropdownRadio
                     label="Tipo de Camada"
@@ -93,6 +91,10 @@ export default function SidebarEsquerdo() {
                 />
 
             </label>
+            {/* Tabela de Referência de Terminais */}
+            <div className="mt-6">
+                    <TabelaReferenciaTerminais />
+                </div>
         </div>
     )
 }

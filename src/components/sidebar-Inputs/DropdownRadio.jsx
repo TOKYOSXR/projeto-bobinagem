@@ -12,12 +12,12 @@ export default function DropdownRadio({ label, options, selected, onChange }) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full h-9 rounded-full px-4 py-1  bg-white flex items-center justify-between"
+        className="w-full h-7 sm:h-6 rounded-full px-4 py-1  bg-white flex items-center justify-between"
       >
         <span className={selected ? 'text-black' : 'text-gray-400'}>
           {selectedLabel}
         </span>
-        <ChevronDown className="h-4 w-4 text-black" />
+        <ChevronDown className="h-4 w-4 text-black cursor-pointer"/>
       </button>
 
       {open && (
@@ -30,8 +30,7 @@ export default function DropdownRadio({ label, options, selected, onChange }) {
                 onClick={() => {
                   onChange(opt.value);
                   setOpen(false);
-                }}
-              >
+                }}>
                 <input
                   type="radio"
                   name="dropdown-radio"

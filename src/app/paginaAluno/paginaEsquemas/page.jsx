@@ -1,9 +1,11 @@
+
 'use client';
 
 import { useEffect } from "react";
 import "@/app/globals.css";
 import Header from "@/components/header/header";
 import SidebarEsquerdo from "@/components/sidebarEsquerdo";
+import SidebarDireito from "@/components/sidebarDireito";
 
 export default function PaginaEsquemas() {
     useEffect(() => {
@@ -147,6 +149,7 @@ export default function PaginaEsquemas() {
         <div className="">
             <Header />
             <SidebarEsquerdo />
+            <SidebarDireito />
 
             {/* Popup de confirmação */}
             <div id="popup-confirm" className="absolute hidden bg-white border p-4 rounded shadow z-50">
@@ -157,12 +160,10 @@ export default function PaginaEsquemas() {
                 </div>
             </div>
 
-            <section className="flex justify-center items-center min-h-screen overflow-x-auto">
-                <div className="scale-[0.50] md:scale-[0.70] 2xl:scale-[0.90] origin-center">
+            <section className="flex justify-center items-center min-h-screen  overflow-x-auto ml-[390px] mr-[250px]">
+                <div className="scale-[0.50] md:scale-[0.70] 2xl:scale-[0.85] origin-center">
                     <div className="relative flex flex-col items-center justify-center h-full w-full min-h-[350px]">
                         {/* SVG para conexões */}
-                <div className="scale-[0.50] md:scale-[0.70] 2xl:scale-[0.80] origin-center">
-                    <div className="relative flex flex-col items-center justify-center h-full w-full">
                         <svg
                             id="conexoes-svg"
                             width="1000"
