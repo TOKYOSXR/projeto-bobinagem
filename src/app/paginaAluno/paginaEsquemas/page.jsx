@@ -9,28 +9,27 @@ export default function PaginaEsquemas() {
     useEffect(() => {
 
         let pontoInicial = null;
-        const triangulos = [];
-        const ranhurasBloqueadas = new Set();
         const alturasPorDistancia = new Map();
-        let pontoU = null;
         const ranhurasUsadas = new Set();
-        const tempoClique = 250;
-        let timeoutClick = null;
-        let contadorU = 0;
         let corAtualTriangulo = 'black';
 
         // Código das ranhuras superiores
         let ultimoCliqueSuperior = 0;
+
         document.querySelectorAll('#ranhuras-superior .w-1').forEach(ranhura => {
             ranhura.classList.add('ranhura', 'superior');
             ranhura.addEventListener('mousedown', (event) => {
                 const agora = Date.now();
+
+                // Se o clique for muito rápido após o anterior, ignora como sendo um possível duplo clique
                 if (agora - ultimoCliqueSuperior < 300) {
                     ultimoCliqueSuperior = agora;
                     return;
                 }
+
                 ultimoCliqueSuperior = agora;
 
+                // Lógica de triângulo
                 if (!pontoInicial) {
                     pontoInicial = ranhura;
                     ranhura.style.backgroundColor = 'red';
@@ -47,38 +46,54 @@ export default function PaginaEsquemas() {
             const pos1 = r1.getBoundingClientRect();
             const pos2 = r2.getBoundingClientRect();
             const svgRect = svg.getBoundingClientRect();
+
             const xInicio = pos1.left + pos1.width / 2 - svgRect.left;
             const xFinal = pos2.left + pos2.width / 2 - svgRect.left;
+
             const y1 = pos1.top - svgRect.top;
             const y2 = pos2.top - svgRect.top;
             const yBase = Math.min(y1, y2);
-            const distancia = Math.abs(xFinal - xInicio);
-            const altura = alturasPorDistancia.get(distancia) ?? (60 + distancia * 0.4);
-            alturasPorDistancia.set(distancia, altura);
-            const peakY = Math.max(yBase - altura, 20);
-            const midX = (xInicio + xFinal) / 2;
 
+            const distancia = Math.abs(xFinal - xInicio);
+            const distanciaArredondada = Math.round(distancia / 10) * 10;
+
+            const alturaBase = 60;
+            const fatorAltura = 0.5;
+            let altura = alturasPorDistancia.get(distanciaArredondada);
+            if (!altura) {
+                altura = alturaBase + distanciaArredondada * fatorAltura;
+                alturasPorDistancia.set(distanciaArredondada, altura);
+            }
+
+            // vertice do triângulo no meio dos dois pontos, acima dels
+            const midX = (xInicio + xFinal) / 2;
+            const peakY = Math.max(yBase - altura, 20);
             const grupo = document.createElementNS("http://www.w3.org/2000/svg", "g");
             grupo.setAttribute("pointer-events", "visiblePainted");
 
-            const l1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            l1.setAttribute("x1", xInicio);
-            l1.setAttribute("y1", yBase);
-            l1.setAttribute("x2", midX);
-            l1.setAttribute("y2", peakY);
-            l1.setAttribute("stroke", corAtualTriangulo);
-            l1.setAttribute("stroke-width", "3");
+            const linha1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            const linha2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
 
-            const l2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            l2.setAttribute("x1", midX);
-            l2.setAttribute("y1", peakY);
-            l2.setAttribute("x2", xFinal);
-            l2.setAttribute("y2", yBase);
-            l2.setAttribute("stroke", corAtualTriangulo);
-            l2.setAttribute("stroke-width", "3");
+            linha1.setAttribute("stroke", corAtualTriangulo);
+            linha1.setAttribute("stroke-width", "3");
+            linha1.setAttribute("pointer-events", "stroke");
 
-            grupo.appendChild(l1);
-            grupo.appendChild(l2);
+            linha2.setAttribute("stroke", corAtualTriangulo);
+            linha2.setAttribute("stroke-width", "3");
+            linha2.setAttribute("pointer-events", "stroke");
+
+            linha1.setAttribute("x1", xInicio);
+            linha1.setAttribute("y1", yBase);
+            linha1.setAttribute("x2", midX);
+            linha1.setAttribute("y2", peakY);
+
+            linha2.setAttribute("x1", midX);
+            linha2.setAttribute("y1", peakY);
+            linha2.setAttribute("x2", xFinal);
+            linha2.setAttribute("y2", yBase);
+
+            grupo.appendChild(linha1);
+            grupo.appendChild(linha2);
 
             grupo.addEventListener("click", (e) => {
                 e.stopPropagation();
@@ -144,11 +159,12 @@ export default function PaginaEsquemas() {
 
             <section className="flex justify-center items-center min-h-screen overflow-x-auto">
                 <div className="scale-[0.50] md:scale-[0.70] 2xl:scale-[0.90] origin-center">
-                    <div className="relative flex flex-col items-center justify-center h-full w-full">
+                    <div className="relative flex flex-col items-center justify-center h-full w-full min-h-[350px]">
+                        {/* SVG para conexões */}
                         <svg
                             id="conexoes-svg"
-                            width="100%"
-                            height="100%"
+                            width="1000"
+                            height="350"
                             className="absolute top-0 left-0 pointer-events-none"
                         ></svg>
 
