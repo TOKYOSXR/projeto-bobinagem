@@ -1,6 +1,6 @@
-import DropdownRadio from "./sidebar-Inputs/DropdownRadio"
-import PassoPrincipal from "./sidebar-Inputs/PassoPrincipal"
-import TabelaReferenciaTerminais from "./sidebar-Inputs/TabelaReferenciaTerminais"
+import DropdownRadio from "../sidebar-Inputs/DropdownRadio"
+import PassoPrincipal from "../sidebar-Inputs/PassoPrincipal"
+import TabelaReferenciaTerminais from "../sidebar-Inputs/TabelaReferenciaTerminais"
 import { useState } from "react"
 
 export default function SidebarEsquerdo() {
