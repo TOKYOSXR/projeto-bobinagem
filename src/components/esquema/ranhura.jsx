@@ -117,33 +117,31 @@ export default function Ranhura() {
             svg.appendChild(grupo);
         }
 
-
         function mostrarPopup(x, y, elementoSVG) {
             const popup = document.getElementById("popup-confirm");
             if (!popup) return;
 
-            // Ajusta a posição do popup para não sair da tela
-            const deslocX = 10; // deslocamento para não ficar exatamente em cima do cursor
-            const deslocY = 10;
+            // Referência ao container relativo
+            const container = popup.parentElement;
+            const containerRect = container.getBoundingClientRect();
 
-            popup.style.left = `${x + deslocX}px`;
-            popup.style.top = `${y + deslocY}px`;
-            popup.style.position = "absolute"; // garante que será posicionado na tela
+            // Calcula posição relativa ao container
+            const left = x - containerRect.left + 10; // deslocamento de 10px
+            const top = y - containerRect.top + 10;
+
+            popup.style.left = `${left}px`;
+            popup.style.top = `${top}px`;
+            popup.style.position = "absolute"; // garante posição relativa ao container
             popup.style.display = "block";
-            popup.style.zIndex = 1000; // garante que fique acima de outros elementos
+            popup.style.zIndex = 1000; // acima de tudo
 
             const btnSim = document.getElementById("btn-sim");
             const btnCancelar = document.getElementById("btn-cancelar");
-
-            // Remove listeners antigos para não acumular
-            btnSim.onclick = null;
-            btnCancelar.onclick = null;
 
             btnSim.onclick = () => {
                 elementoSVG.remove();
                 popup.style.display = "none";
 
-                // Resetando cores e remoção de ranhuras usadas
                 if (elementoSVG._ranhura) {
                     elementoSVG._ranhura.style.backgroundColor = 'black';
                     ranhurasUsadas.delete(elementoSVG._ranhura);
@@ -186,7 +184,7 @@ export default function Ranhura() {
                             id="conexoes-svg"
                             width="1000"
                             height="350"
-                            className="absolute top-0 left-0 pointer-events-none"
+                            className="absolute top-0 left-0"
                         ></svg>
 
                         {/* Ranhuras Superiores */}
