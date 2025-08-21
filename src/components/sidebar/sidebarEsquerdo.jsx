@@ -48,7 +48,7 @@ export default function SidebarEsquerdo() {
    
 
     return (
-        <div className="fixed left-0 h-full w-[390px] max-w-xs px-4 bg-[#02335E] text-white space-y-3 z-10 ">
+        <div className="fixed left-0 h-full md:w-[25%]  max-w-xs px-4 bg-[#02335E] text-white space-y-3 z-10 ">
             <label className="flex items-center flex-col gap-5 p-4">
                 <input type="text" className="bg-white rounded-full focus:outline-none text-black px-6 py-1 w-full h-10 " placeholder="Ranhuras" />
 

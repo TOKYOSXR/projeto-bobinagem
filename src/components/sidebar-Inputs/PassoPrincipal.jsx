@@ -41,7 +41,7 @@ export default function PassoPrincipal({ label = "Passo principal:", onChange })
   return (
     <div className="w-full">
       <label className="block text-white text-sm mb-2">{label}</label>
-      <div className="flex items-center bg-white rounded-lg  py-2">
+      <div className="flex flex-wrap gap-1 items-center bg-white rounded-lg py-2">
         {valores.map((valor, index) => (
           <div key={index} className="flex items-center">
             <input
@@ -50,8 +50,8 @@ export default function PassoPrincipal({ label = "Passo principal:", onChange })
               value={valor}
               onChange={(e) => handleInputChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
-                className="w-6 h-6 text-center border border-gray-300 rounded mx-1 text-gray-600 text-[] focus:outline-none "
-               maxLength={2}
+              className="w-6 h-6 md:w-5 md:h-5 text-center border border-gray-300 rounded mx-1 text-gray-600 focus:outline-none"
+              maxLength={2}
             />
             {index < valores.length - 1 && (
               <div className="flex flex-col mx-1">
@@ -64,4 +64,4 @@ export default function PassoPrincipal({ label = "Passo principal:", onChange })
       </div>
     </div>
   );
-} 
+}

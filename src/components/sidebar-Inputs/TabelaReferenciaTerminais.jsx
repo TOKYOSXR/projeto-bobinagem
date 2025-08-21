@@ -38,13 +38,13 @@ export default function TabelaReferenciaTerminais() {
                                     className={`border-t ${padraoSelecionado === padrao ? 'bg-[#02335E]' : 'hover:bg-[#02335e] '
                                         }`}
                                 >
-                                    <td className="px-1 py-1 font-medium text-white border-r text-xs">
+                                    <td className="px-1 py-1 font-medium text-white border-r lg:text-xs md:text-[10px]">
                                         {padrao}
                                     </td>
                                     {dadosTerminais[padrao].primeira.map((terminal, index) => (
                                         <td
                                             key={`primeira-${padrao}-${index}`}
-                                            className="px-1 py-1 text-center border-r  text-xs"
+                                            className="px-1 py-1 text-center border-r  lg:text-xs md:text-[8px]"
                                         >
                                             {terminal}
                                         </td>
@@ -67,13 +67,13 @@ export default function TabelaReferenciaTerminais() {
                                     className={`border-t ${padraoSelecionado === padrao ? 'bg-[#02335E]' : 'hover:bg-[#02335E]'
                                         }`}
                                 >
-                                    <td className="px-1 py-1 font-medium text-white border-r text-xs">
+                                    <td className="px-1 py-1 font-medium text-white border-r lg:text-xs md:text-[10px]">
                                         {padrao}
                                     </td>
                                     {dadosTerminais[padrao].segunda.map((terminal, index) => (
                                         <td
                                             key={`segunda-${padrao}-${index}`}
-                                            className="px-1 py-1 text-center border-r text-white text-xs"
+                                            className="px-1 py-1 text-center border-r text-white lg:text-xs md:text-[8px] "
                                         >
                                             {terminal}
                                         </td>
