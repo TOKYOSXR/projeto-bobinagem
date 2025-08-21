@@ -117,6 +117,7 @@ export default function Ranhura() {
             svg.appendChild(grupo);
         }
 
+        // Código do popup de confirmação
         function mostrarPopup(x, y, elementoSVG) {
             const popup = document.getElementById("popup-confirm");
             if (!popup) return;
@@ -154,8 +155,6 @@ export default function Ranhura() {
                     elementoSVG._ranhura2.style.backgroundColor = 'black';
                     ranhurasUsadas.delete(elementoSVG._ranhura2);
                 }
-
-                pontoU = null;
             };
 
             btnCancelar.onclick = () => {
@@ -182,8 +181,8 @@ export default function Ranhura() {
                         {/* SVG para conexões */}
                         <svg
                             id="conexoes-svg"
-                            width="1000"
-                            height="350"
+                            width="100%"
+                            height="500"
                             className="absolute top-0 left-0"
                         ></svg>
 
