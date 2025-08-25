@@ -28,7 +28,7 @@ export default function Ranhura({ corSelecionada }) {
 
                 if (!pontoInicial) {
                     pontoInicial = ranhura;
-                    ranhura.style.backgroundColor = corSelecionada; // usa a cor selecionada
+                    ranhura.style.backgroundColor = 'red'; // usa a cor selecionada
                 } else {
                     desenharTriangulo(pontoInicial, ranhura);
                     pontoInicial.style.backgroundColor = 'black';
@@ -80,11 +80,11 @@ export default function Ranhura({ corSelecionada }) {
             grupo.setAttribute("pointer-events", "visiblePainted");
 
             const linha1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            linha1.setAttribute("stroke", corSelecionada); // usa a cor selecionada
+            linha1.setAttribute("stroke", corAtualTriangulo);
             linha1.setAttribute("stroke-width", "3");
 
             const linha2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            linha2.setAttribute("stroke", corSelecionada); // usa a cor selecionada
+            linha2.setAttribute("stroke", corAtualTriangulo);
             linha2.setAttribute("stroke-width", "3");
 
             if (esquerdaParaDireita) {
