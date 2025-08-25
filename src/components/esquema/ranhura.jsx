@@ -3,13 +3,13 @@
 import { useEffect } from "react";
 import "@/app/globals.css";
 
-export default function Ranhura() {
+export default function Ranhura({ corSelecionada }) {
     useEffect(() => {
 
         let pontoInicial = null;
         const alturasPorDistancia = new Map();
         const ranhurasUsadas = new Set();
-        let corAtualTriangulo = 'black';
+        let corAtualTriangulo = corSelecionada; // Agora usa a cor selecionada
 
         // Código das ranhuras superiores
         let ultimoCliqueSuperior = 0;
@@ -19,7 +19,6 @@ export default function Ranhura() {
             ranhura.addEventListener('mousedown', (event) => {
                 const agora = Date.now();
 
-                // Se o clique for muito rápido após o anterior, ignora como sendo um possível duplo clique
                 if (agora - ultimoCliqueSuperior < 300) {
                     ultimoCliqueSuperior = agora;
                     return;
@@ -27,10 +26,9 @@ export default function Ranhura() {
 
                 ultimoCliqueSuperior = agora;
 
-                // Lógica de triângulo
                 if (!pontoInicial) {
                     pontoInicial = ranhura;
-                    ranhura.style.backgroundColor = 'red';
+                    ranhura.style.backgroundColor = corSelecionada; // usa a cor selecionada
                 } else {
                     desenharTriangulo(pontoInicial, ranhura);
                     pontoInicial.style.backgroundColor = 'black';
@@ -41,7 +39,6 @@ export default function Ranhura() {
 
         // Função responsável por desenhar um triângulo entre duas "ranhuras"
         function desenharTriangulo(r1, r2) {
-            // Obtém a referência ao SVG onde será desenhado
             const svg = document.getElementById('conexoes-svg');
             if (!svg) return;
 
@@ -54,11 +51,8 @@ export default function Ranhura() {
 
             const rect1 = r1.getBoundingClientRect();
             const rect2 = r2.getBoundingClientRect();
-
-            // ajuste vertical fino (ex.: 0, -2, +2 até ficar no lugar perfeito)
             const Y_SHIFT = 0;
 
-            // usar topo da barra em vez do bottom
             const p1 = toSvg(rect1.left + rect1.width / 2, rect1.top + Y_SHIFT);
             const p2 = toSvg(rect2.left + rect2.width / 2, rect2.top + Y_SHIFT);
 
@@ -66,31 +60,25 @@ export default function Ranhura() {
             const xFinal = p2.x;
             const yBase = Math.min(p1.y, p2.y);
 
-            // Distância horizontal entre os dois pontos
             const distancia = Math.abs(xFinal - xInicio);
-
-            // Arredonda a distância para "quebras" de 10px (opcional, pode ajudar na simetria)
             const distanciaArredondada = Math.round(distancia / 10) * 10;
 
-            // Valores base para cálculo da altura do triângulo
-            const alturaBase = 60;  // altura mínima
-            const fatorAltura = 0.5; // fator de crescimento da altura baseado na distância
+            const alturaBase = 60;
+            const fatorAltura = 0.5;
 
-            // Cache de alturas já calculadas
             let altura = alturasPorDistancia.get(distanciaArredondada);
             if (!altura) {
                 altura = alturaBase + distanciaArredondada * fatorAltura;
                 alturasPorDistancia.set(distanciaArredondada, altura);
             }
 
-            // Calcula o ponto do vértice superior (meio entre os dois X e acima da base Y)
             const midX = (xInicio + xFinal) / 2;
             const peakY = Math.max(yBase - altura, 20);
 
             const grupo = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
             const linha1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            linha1.setAttribute("stroke", corAtualTriangulo);
+            linha1.setAttribute("stroke", corSelecionada); // usa a cor selecionada
             linha1.setAttribute("stroke-width", "3");
             linha1.setAttribute("x1", xInicio);
             linha1.setAttribute("y1", yBase);
@@ -98,7 +86,7 @@ export default function Ranhura() {
             linha1.setAttribute("y2", peakY);
 
             const linha2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            linha2.setAttribute("stroke", corAtualTriangulo);
+            linha2.setAttribute("stroke", corSelecionada); // usa a cor selecionada
             linha2.setAttribute("stroke-width", "3");
             linha2.setAttribute("x1", midX);
             linha2.setAttribute("y1", peakY);
@@ -109,32 +97,29 @@ export default function Ranhura() {
             grupo.appendChild(linha2);
 
             grupo.addEventListener("click", (e) => {
-                e.stopPropagation(); // evita que clique "vaze"
-                // usa clientX/clientY para posição relativa à tela
+                e.stopPropagation();
                 mostrarPopup(e.clientX, e.clientY, grupo);
             });
 
             svg.appendChild(grupo);
         }
 
-        // Código do popup de confirmação
+        // Popup de confirmação
         function mostrarPopup(x, y, elementoSVG) {
             const popup = document.getElementById("popup-confirm");
             if (!popup) return;
 
-            // Referência ao container relativo
             const container = popup.parentElement;
             const containerRect = container.getBoundingClientRect();
 
-            // Calcula posição relativa ao container
-            const left = x - containerRect.left + 10; // deslocamento de 10px
+            const left = x - containerRect.left + 10;
             const top = y - containerRect.top + 10;
 
             popup.style.left = `${left}px`;
             popup.style.top = `${top}px`;
-            popup.style.position = "absolute"; // garante posição relativa ao container
+            popup.style.position = "absolute";
             popup.style.display = "block";
-            popup.style.zIndex = 1000; // acima de tudo
+            popup.style.zIndex = 1000;
 
             const btnSim = document.getElementById("btn-sim");
             const btnCancelar = document.getElementById("btn-cancelar");
@@ -142,19 +127,6 @@ export default function Ranhura() {
             btnSim.onclick = () => {
                 elementoSVG.remove();
                 popup.style.display = "none";
-
-                if (elementoSVG._ranhura) {
-                    elementoSVG._ranhura.style.backgroundColor = 'black';
-                    ranhurasUsadas.delete(elementoSVG._ranhura);
-                }
-                if (elementoSVG._ranhura1) {
-                    elementoSVG._ranhura1.style.backgroundColor = 'black';
-                    ranhurasUsadas.delete(elementoSVG._ranhura1);
-                }
-                if (elementoSVG._ranhura2) {
-                    elementoSVG._ranhura2.style.backgroundColor = 'black';
-                    ranhurasUsadas.delete(elementoSVG._ranhura2);
-                }
             };
 
             btnCancelar.onclick = () => {
@@ -162,7 +134,7 @@ export default function Ranhura() {
             };
         }
 
-    }, []);
+    }, [corSelecionada]); // Atualiza efeito sempre que a cor mudar
 
     return (
         <>
@@ -175,7 +147,7 @@ export default function Ranhura() {
                 </div>
             </div>
 
-            <section className="flex justify-center items-center min-h-screen  overflow-x-auto">
+            <section className="flex justify-center items-center min-h-screen overflow-x-auto">
                 <div className="scale-[0.50] md:scale-[0.70] 2xl:scale-[0.85] origin-center">
                     <div className="relative flex flex-col items-center justify-center h-full w-full min-h-[50rem]">
                         {/* SVG para conexões */}
@@ -214,5 +186,5 @@ export default function Ranhura() {
                 </div>
             </section>
         </>
-    )
+    );
 }
