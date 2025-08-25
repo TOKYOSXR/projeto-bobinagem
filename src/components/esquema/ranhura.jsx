@@ -59,6 +59,7 @@ export default function Ranhura({ corSelecionada }) {
             const xInicio = p1.x;
             const xFinal = p2.x;
             const yBase = Math.min(p1.y, p2.y);
+            const esquerdaParaDireita = xInicio < xFinal;
 
             const distancia = Math.abs(xFinal - xInicio);
             const distanciaArredondada = Math.round(distancia / 10) * 10;
@@ -76,22 +77,37 @@ export default function Ranhura({ corSelecionada }) {
             const peakY = Math.max(yBase - altura, 20);
 
             const grupo = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            grupo.setAttribute("pointer-events", "visiblePainted");
 
             const linha1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
             linha1.setAttribute("stroke", corSelecionada); // usa a cor selecionada
             linha1.setAttribute("stroke-width", "3");
-            linha1.setAttribute("x1", xInicio);
-            linha1.setAttribute("y1", yBase);
-            linha1.setAttribute("x2", midX);
-            linha1.setAttribute("y2", peakY);
 
             const linha2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
             linha2.setAttribute("stroke", corSelecionada); // usa a cor selecionada
             linha2.setAttribute("stroke-width", "3");
-            linha2.setAttribute("x1", midX);
-            linha2.setAttribute("y1", peakY);
-            linha2.setAttribute("x2", xFinal);
-            linha2.setAttribute("y2", yBase);
+
+            if (esquerdaParaDireita) {
+                linha1.setAttribute("x1", xInicio);
+                linha1.setAttribute("y1", yBase);
+                linha1.setAttribute("x2", midX);
+                linha1.setAttribute("y2", peakY);
+
+                linha2.setAttribute("x1", midX);
+                linha2.setAttribute("y1", peakY);
+                linha2.setAttribute("x2", xFinal);
+                linha2.setAttribute("y2", yBase);
+            } else {
+                linha1.setAttribute("x1", xInicio);
+                linha1.setAttribute("y1", yBase);
+                linha1.setAttribute("x2", xInicio - (xFinal - xInicio) / 2);
+                linha1.setAttribute("y2", peakY);
+
+                linha2.setAttribute("x1", xFinal);
+                linha2.setAttribute("y1", yBase);
+                linha2.setAttribute("x2", xFinal + (xFinal - xInicio) / 2);
+                linha2.setAttribute("y2", yBase - altura);
+            }
 
             grupo.appendChild(linha1);
             grupo.appendChild(linha2);
@@ -147,9 +163,11 @@ export default function Ranhura({ corSelecionada }) {
                 </div>
             </div>
 
-            <section className="flex justify-center items-center min-h-screen overflow-x-auto">
+
+            <section className="flex justify-center items-center h-full overflow-x-auto">
+
                 <div className="scale-[0.50] md:scale-[0.70] 2xl:scale-[0.85] origin-center">
-                    <div className="relative flex flex-col items-center justify-center h-full w-full min-h-[50rem]">
+                    <div className="relative flex flex-col items-center justify-center h-full w-full min-h-[52rem]">
                         {/* SVG para conexões */}
                         <svg
                             id="conexoes-svg"
