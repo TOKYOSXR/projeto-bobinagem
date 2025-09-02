@@ -1,53 +1,44 @@
 'use client';
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import "@/app/globals.css";
 
 export default function Ranhura({ corSelecionada }) {
+    const corRef = useRef(corSelecionada);
+
+    const alturasPorDistanciaRef = useRef(new Map());
+
+    useEffect(() => {
+        corRef.current = corSelecionada;
+    }, [corSelecionada]);
+
     useEffect(() => {
 
         let pontoInicial = null;
-        const alturasPorDistancia = new Map();
-        const ranhurasUsadas = new Set();
-        let corAtualTriangulo = corSelecionada; // Agora usa a cor selecionada
-
-        // Código das ranhuras superiores
         let ultimoCliqueSuperior = 0;
 
-        document.querySelectorAll('#ranhuras-superior .w-1').forEach(ranhura => {
-            ranhura.classList.add('ranhura', 'superior');
-            ranhura.addEventListener('mousedown', (event) => {
-                const agora = Date.now();
+        const svg = document.getElementById('conexoes-svg');
 
-                if (agora - ultimoCliqueSuperior < 300) {
-                    ultimoCliqueSuperior = agora;
-                    return;
-                }
+        const ranhurasSuperior = Array.from(
+            document.querySelectorAll('#ranhuras-superior .w-1')
+        );
 
-                ultimoCliqueSuperior = agora;
+        // Guardamos os handlers para limpar no unmount
+        const handlersSuperior = new Map();
 
-                if (!pontoInicial) {
-                    pontoInicial = ranhura;
-                    ranhura.style.backgroundColor = 'red'; // usa a cor selecionada
-                } else {
-                    desenharTriangulo(pontoInicial, ranhura);
-                    pontoInicial.style.backgroundColor = 'black';
-                    pontoInicial = null;
-                }
-            });
-        });
+        const toSvg = (x, y) => {
+            if (!svg) return { x, y };
+            const pt = svg.createSVGPoint();
+            pt.x = x;
+            pt.y = y;
+            const ctm = svg.getScreenCTM();
+            if (!ctm) return { x, y };
+            return pt.matrixTransform(ctm.inverse());
+        };
 
         // Função responsável por desenhar um triângulo entre duas "ranhuras"
-        function desenharTriangulo(r1, r2) {
-            const svg = document.getElementById('conexoes-svg');
+        const desenharTriangulo = (r1, r2) => {
             if (!svg) return;
-
-            const toSvg = (x, y) => {
-                const pt = svg.createSVGPoint();
-                pt.x = x;
-                pt.y = y;
-                return pt.matrixTransform(svg.getScreenCTM().inverse());
-            };
 
             const rect1 = r1.getBoundingClientRect();
             const rect2 = r2.getBoundingClientRect();
@@ -67,6 +58,7 @@ export default function Ranhura({ corSelecionada }) {
             const alturaBase = 60;
             const fatorAltura = 0.5;
 
+            const alturasPorDistancia = alturasPorDistanciaRef.current;
             let altura = alturasPorDistancia.get(distanciaArredondada);
             if (!altura) {
                 altura = alturaBase + distanciaArredondada * fatorAltura;
@@ -76,81 +68,121 @@ export default function Ranhura({ corSelecionada }) {
             const midX = (xInicio + xFinal) / 2;
             const peakY = Math.max(yBase - altura, 20);
 
-            const grupo = document.createElementNS("http://www.w3.org/2000/svg", "g");
-            grupo.setAttribute("pointer-events", "visiblePainted");
+            const grupo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            grupo.setAttribute('pointer-events', 'visiblePainted');
 
-            const linha1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            linha1.setAttribute("stroke", corAtualTriangulo);
-            linha1.setAttribute("stroke-width", "3");
+            const linha1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            linha1.setAttribute('stroke', corRef.current);
+            linha1.setAttribute('stroke-width', '3');
 
-            const linha2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            linha2.setAttribute("stroke", corAtualTriangulo);
-            linha2.setAttribute("stroke-width", "3");
+            const linha2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            linha2.setAttribute('stroke', corRef.current);
+            linha2.setAttribute('stroke-width', '3');
 
             if (esquerdaParaDireita) {
-                linha1.setAttribute("x1", xInicio);
-                linha1.setAttribute("y1", yBase);
-                linha1.setAttribute("x2", midX);
-                linha1.setAttribute("y2", peakY);
+                linha1.setAttribute('x1', xInicio);
+                linha1.setAttribute('y1', yBase);
+                linha1.setAttribute('x2', midX);
+                linha1.setAttribute('y2', peakY);
 
-                linha2.setAttribute("x1", midX);
-                linha2.setAttribute("y1", peakY);
-                linha2.setAttribute("x2", xFinal);
-                linha2.setAttribute("y2", yBase);
+                linha2.setAttribute('x1', midX);
+                linha2.setAttribute('y1', peakY);
+                linha2.setAttribute('x2', xFinal);
+                linha2.setAttribute('y2', yBase);
             } else {
-                linha1.setAttribute("x1", xInicio);
-                linha1.setAttribute("y1", yBase);
-                linha1.setAttribute("x2", xInicio - (xFinal - xInicio) / 2);
-                linha1.setAttribute("y2", peakY);
+                linha1.setAttribute('x1', xInicio);
+                linha1.setAttribute('y1', yBase);
+                linha1.setAttribute('x2', xInicio - (xFinal - xInicio) / 2);
+                linha1.setAttribute('y2', peakY);
 
-                linha2.setAttribute("x1", xFinal);
-                linha2.setAttribute("y1", yBase);
-                linha2.setAttribute("x2", xFinal + (xFinal - xInicio) / 2);
-                linha2.setAttribute("y2", yBase - altura);
+                linha2.setAttribute('x1', xFinal);
+                linha2.setAttribute('y1', yBase);
+                linha2.setAttribute('x2', xFinal + (xFinal - xInicio) / 2);
+                linha2.setAttribute('y2', yBase - altura);
             }
 
             grupo.appendChild(linha1);
             grupo.appendChild(linha2);
 
-            grupo.addEventListener("click", (e) => {
+            grupo.addEventListener('click', (e) => {
                 e.stopPropagation();
                 mostrarPopup(e.clientX, e.clientY, grupo);
             });
 
             svg.appendChild(grupo);
-        }
+        };
 
-        // Popup de confirmação
-        function mostrarPopup(x, y, elementoSVG) {
-            const popup = document.getElementById("popup-confirm");
-            if (!popup) return;
+        const handleMouseDown = (ranhura) => (event) => {
+            const agora = Date.now();
+            if (agora - ultimoCliqueSuperior < 300) {
+                ultimoCliqueSuperior = agora;
+                return;
+            }
+            ultimoCliqueSuperior = agora;
 
-            const container = popup.parentElement;
-            const containerRect = container.getBoundingClientRect();
+            if (!pontoInicial) {
+                pontoInicial = ranhura;
+                ranhura.classList.add('selecionada');
+            } else {
+                desenharTriangulo(pontoInicial, ranhura);
+                pontoInicial.classList.remove('selecionada');
+                pontoInicial = null;
+            }
+        };
+        
+        // Registra listeners (somente uma vez)
+        ranhurasSuperior.forEach((r) => {
+            r.classList.add('ranhura', 'superior');
+            const h = handleMouseDown(r);
+            r.addEventListener('mousedown', h);
+            handlersSuperior.set(r, h);
+        });
 
-            const left = x - containerRect.left + 10;
-            const top = y - containerRect.top + 10;
+        // Limpa tudo no unmount (evita listeners duplicados e triângulos "em camadas")
+        return () => {
+            ranhurasSuperior.forEach((r) => {
+                const h = handlersSuperior.get(r);
+                if (h) r.removeEventListener('mousedown', h);
+                r.classList.remove('selecionada');
+            });
+        };
+    }, []);
 
-            popup.style.left = `${left}px`;
-            popup.style.top = `${top}px`;
-            popup.style.position = "absolute";
-            popup.style.display = "block";
-            popup.style.zIndex = 1000;
+    // Popup de confirmação
+    const mostrarPopup = (x, y, elementoSVG) => {
+        const popup = document.getElementById('popup-confirm');
+        if (!popup) return;
 
-            const btnSim = document.getElementById("btn-sim");
-            const btnCancelar = document.getElementById("btn-cancelar");
+        const container = popup.parentElement;
+        if (!container) return;
 
+        const containerRect = container.getBoundingClientRect();
+        const left = x - containerRect.left + 10;
+        const top = y - containerRect.top + 10;
+
+        popup.style.left = `${left}px`;
+        popup.style.top = `${top}px`;
+        popup.style.position = 'absolute';
+        popup.style.display = 'block';
+        popup.style.zIndex = 1000;
+
+        const btnSim = document.getElementById('btn-sim');
+        const btnCancelar = document.getElementById('btn-cancelar');
+
+        if (btnSim) {
             btnSim.onclick = () => {
+                // Remove o grupo inteiro imediatamente
                 elementoSVG.remove();
-                popup.style.display = "none";
-            };
-
-            btnCancelar.onclick = () => {
-                popup.style.display = "none";
+                popup.style.display = 'none';
             };
         }
 
-    }, [corSelecionada]); // Atualiza efeito sempre que a cor mudar
+        if (btnCancelar) {
+            btnCancelar.onclick = () => {
+                popup.style.display = 'none';
+            };
+        }
+    };
 
     return (
         <>
