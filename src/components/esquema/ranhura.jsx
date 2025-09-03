@@ -194,15 +194,17 @@ export default function Ranhura({ corSelecionada }) {
 
             const x1 = p1.x;
             const y1 = p1.y;
-            const x2 = p1.x;
 
-            const yBase = toSvg(0, svgRect.clientHeight);
+            // Define o ponto final da linha como o fundo do SV
+            const yBase = toSvg(0, svgRect.height).y;
+            // Garante que o ponto final (y2) seja maior que o ponto inicial (y1)
+            const y2 = Math.max(y1, yBase);
 
             const linha = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             linha.setAttribute('x1', x1);
             linha.setAttribute('y1', y1);
-            linha.setAttribute('x2', x2);
-            linha.setAttribute('y2', yBase); // vai até o fundo do SVG
+            linha.setAttribute('x2', x1);
+            linha.setAttribute('y2', y2); // vai até o fundo do SVG
             linha.setAttribute('stroke', corRef.current);
             linha.setAttribute('stroke-width', '3');
             linha.setAttribute('pointer-events', 'visiblePainted');
@@ -313,7 +315,7 @@ export default function Ranhura({ corSelecionada }) {
                         <svg
                             id="conexoes-svg"
                             width="100%"
-                            height="500"
+                            height="100%"
                             className="absolute top-0 left-0"
                         ></svg>
 
