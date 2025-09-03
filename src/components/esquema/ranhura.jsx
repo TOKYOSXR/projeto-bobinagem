@@ -5,7 +5,6 @@ import "@/app/globals.css";
 
 export default function Ranhura({ corSelecionada }) {
     const corRef = useRef(corSelecionada);
-
     const alturasPorDistanciaRef = useRef(new Map());
 
     useEffect(() => {
@@ -13,18 +12,22 @@ export default function Ranhura({ corSelecionada }) {
     }, [corSelecionada]);
 
     useEffect(() => {
-
-        let pontoInicial = null;
+        let pontoSuperior = null;
+        let pontoInferior = null;
         let ultimoCliqueSuperior = 0;
+        let ultimoCliqueInferior = 0;
 
         const svg = document.getElementById('conexoes-svg');
 
         const ranhurasSuperior = Array.from(
             document.querySelectorAll('#ranhuras-superior .w-1')
         );
+        const ranhurasInferior = Array.from(
+            document.querySelectorAll('#ranhuras-inferior .w-1')
+        );
 
-        // Guardamos os handlers para limpar no unmount
         const handlersSuperior = new Map();
+        const handlersInferior = new Map();
 
         const toSvg = (x, y) => {
             if (!svg) return { x, y };
@@ -36,7 +39,7 @@ export default function Ranhura({ corSelecionada }) {
             return pt.matrixTransform(ctm.inverse());
         };
 
-        // Função responsável por desenhar um triângulo entre duas "ranhuras"
+        // =================== SUPERIOR (triângulos) ===================
         const desenharTriangulo = (r1, r2) => {
             if (!svg) return;
 
@@ -50,7 +53,6 @@ export default function Ranhura({ corSelecionada }) {
             const xInicio = p1.x;
             const xFinal = p2.x;
             const yBase = Math.min(p1.y, p2.y);
-            const esquerdaParaDireita = xInicio < xFinal;
 
             const distancia = Math.abs(xFinal - xInicio);
             const distanciaArredondada = Math.round(distancia / 10) * 10;
@@ -72,34 +74,20 @@ export default function Ranhura({ corSelecionada }) {
             grupo.setAttribute('pointer-events', 'visiblePainted');
 
             const linha1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            linha1.setAttribute('x1', xInicio);
+            linha1.setAttribute('y1', yBase);
+            linha1.setAttribute('x2', midX);
+            linha1.setAttribute('y2', peakY);
             linha1.setAttribute('stroke', corRef.current);
             linha1.setAttribute('stroke-width', '3');
 
             const linha2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            linha2.setAttribute('x1', midX);
+            linha2.setAttribute('y1', peakY);
+            linha2.setAttribute('x2', xFinal);
+            linha2.setAttribute('y2', yBase);
             linha2.setAttribute('stroke', corRef.current);
             linha2.setAttribute('stroke-width', '3');
-
-            if (esquerdaParaDireita) {
-                linha1.setAttribute('x1', xInicio);
-                linha1.setAttribute('y1', yBase);
-                linha1.setAttribute('x2', midX);
-                linha1.setAttribute('y2', peakY);
-
-                linha2.setAttribute('x1', midX);
-                linha2.setAttribute('y1', peakY);
-                linha2.setAttribute('x2', xFinal);
-                linha2.setAttribute('y2', yBase);
-            } else {
-                linha1.setAttribute('x1', xInicio);
-                linha1.setAttribute('y1', yBase);
-                linha1.setAttribute('x2', xInicio - (xFinal - xInicio) / 2);
-                linha1.setAttribute('y2', peakY);
-
-                linha2.setAttribute('x1', xFinal);
-                linha2.setAttribute('y1', yBase);
-                linha2.setAttribute('x2', xFinal + (xFinal - xInicio) / 2);
-                linha2.setAttribute('y2', yBase - altura);
-            }
 
             grupo.appendChild(linha1);
             grupo.appendChild(linha2);
@@ -112,7 +100,7 @@ export default function Ranhura({ corSelecionada }) {
             svg.appendChild(grupo);
         };
 
-        const handleMouseDown = (ranhura) => (event) => {
+        const handleMouseDownSuperior = (ranhura) => (event) => {
             const agora = Date.now();
             if (agora - ultimoCliqueSuperior < 300) {
                 ultimoCliqueSuperior = agora;
@@ -120,28 +108,151 @@ export default function Ranhura({ corSelecionada }) {
             }
             ultimoCliqueSuperior = agora;
 
-            if (!pontoInicial) {
-                pontoInicial = ranhura;
+            if (!pontoSuperior) {
+                pontoSuperior = ranhura;
                 ranhura.classList.add('selecionada');
             } else {
-                desenharTriangulo(pontoInicial, ranhura);
-                pontoInicial.classList.remove('selecionada');
-                pontoInicial = null;
+                desenharTriangulo(pontoSuperior, ranhura);
+                pontoSuperior.classList.remove('selecionada');
+                pontoSuperior = null;
             }
         };
-        
-        // Registra listeners (somente uma vez)
+
         ranhurasSuperior.forEach((r) => {
             r.classList.add('ranhura', 'superior');
-            const h = handleMouseDown(r);
+            const h = handleMouseDownSuperior(r);
             r.addEventListener('mousedown', h);
             handlersSuperior.set(r, h);
         });
 
-        // Limpa tudo no unmount (evita listeners duplicados e triângulos "em camadas")
+        // =================== INFERIOR (U e linha reta) ===================
+        const desenharLigacaoInferior = (r1, r2) => {
+            if (!svg) return;
+
+            const rect1 = r1.getBoundingClientRect();
+            const rect2 = r2.getBoundingClientRect();
+
+            const p1 = toSvg(rect1.left + rect1.width / 2, rect1.bottom);
+            const p2 = toSvg(rect2.left + rect2.width / 2, rect2.bottom);
+
+            const x1 = p1.x;
+            const x2 = p2.x;
+            const y1 = p1.y;
+            const y2 = p2.y;
+
+            const yBase = svg.clientHeight;
+
+            const grupo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            grupo.setAttribute("pointer-events", "visiblePainted");
+
+            const linha1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            linha1.setAttribute('x1', x1);
+            linha1.setAttribute('y1', y1);
+            linha1.setAttribute('x2', x1);
+            linha1.setAttribute('y2', yBase);
+            linha1.setAttribute('stroke', corRef.current);
+            linha1.setAttribute('stroke-width', '3');
+
+            const linha2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            linha2.setAttribute('x1', x2);
+            linha2.setAttribute('y1', y2);
+            linha2.setAttribute('x2', x2);
+            linha2.setAttribute('y2', yBase);
+            linha2.setAttribute('stroke', corRef.current);
+            linha2.setAttribute('stroke-width', '3');
+
+            const linha3 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            linha3.setAttribute('x1', Math.min(x1, x2));
+            linha3.setAttribute('y1', yBase);
+            linha3.setAttribute('x2', Math.max(x1, x2));
+            linha3.setAttribute('y2', yBase);
+            linha3.setAttribute('stroke', corRef.current);
+            linha3.setAttribute('stroke-width', '3');
+
+            grupo.appendChild(linha1);
+            grupo.appendChild(linha2);
+            grupo.appendChild(linha3);
+
+            grupo.addEventListener("click", (e) => {
+                e.stopPropagation();
+                mostrarPopup(e.clientX, e.clientY, grupo);
+            });
+
+            svg.appendChild(grupo);
+        };
+
+        // ============== LINHA RETA =====================
+        const desenharLinhaVerticalInferior = (r1) => {
+            if (!svg) return;
+
+            // const pos = ranhura.getBoundingClientRect();
+            const svgRect = svg.getBoundingClientRect();
+
+            const rect1 = r1.getBoundingClientRect();
+
+            const p1 = toSvg(rect1.left + rect1.width / 2, rect1.bottom);
+
+            const x1 = p1.x;
+            const y1 = p1.y;
+            const x2 = p1.x;
+
+            const yBase = toSvg(0, svgRect.clientHeight);
+
+            const linha = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            linha.setAttribute('x1', x1);
+            linha.setAttribute('y1', y1);
+            linha.setAttribute('x2', x2);
+            linha.setAttribute('y2', yBase); // vai até o fundo do SVG
+            linha.setAttribute('stroke', corRef.current);
+            linha.setAttribute('stroke-width', '3');
+            linha.setAttribute('pointer-events', 'visiblePainted');
+
+            linha.addEventListener("click", (e) => {
+                e.stopPropagation();
+                mostrarPopup(e.clientX, e.clientY, linha);
+            });
+
+            svg.appendChild(linha);
+        };
+
+
+
+        const handleMouseDownInferior = (ranhura) => (event) => {
+            const agora = Date.now();
+
+            if (!pontoInferior) {
+                // Primeiro clique
+                pontoInferior = ranhura;
+                ranhura.classList.add('selecionada');
+            } else if (pontoInferior === ranhura) {
+                // Mesmo clique: cria linha vertical
+                desenharLinhaVerticalInferior(ranhura);
+                pontoInferior.classList.remove('selecionada');
+                pontoInferior = null;
+            } else {
+                // Segundo clique em ranhura diferente: cria "U"
+                desenharLigacaoInferior(pontoInferior, ranhura);
+                pontoInferior.classList.remove('selecionada');
+                pontoInferior = null;
+            }
+        };
+
+
+        ranhurasInferior.forEach((r) => {
+            r.classList.add('ranhura', 'inferior');
+            const h = handleMouseDownInferior(r);
+            r.addEventListener('mousedown', h);
+            handlersInferior.set(r, h);
+        });
+
         return () => {
             ranhurasSuperior.forEach((r) => {
                 const h = handlersSuperior.get(r);
+                if (h) r.removeEventListener('mousedown', h);
+                r.classList.remove('selecionada');
+            });
+            ranhurasInferior.forEach((r) => {
+                const h = handlersInferior.get(r);
                 if (h) r.removeEventListener('mousedown', h);
                 r.classList.remove('selecionada');
             });
@@ -195,9 +306,7 @@ export default function Ranhura({ corSelecionada }) {
                 </div>
             </div>
 
-
             <section className="flex justify-center items-center h-full overflow-x-auto">
-
                 <div className="scale-[0.50] md:scale-[0.70] 2xl:scale-[0.85] origin-center">
                     <div className="relative flex flex-col items-center justify-center h-full w-full min-h-[52rem]">
                         {/* SVG para conexões */}
