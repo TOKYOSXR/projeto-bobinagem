@@ -1,11 +1,14 @@
 'use client';
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 import "@/app/globals.css";
 
-export default function Ranhura({ corSelecionada }) {
+export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
     const corRef = useRef(corSelecionada);
     const alturasPorDistanciaRef = useRef(new Map());
+    const containerRef = useRef(null);
+    const [gapCalculado, setGapCalculado] = useState(0);
+    const [tamanhoRanhura, setTamanhoRanhura] = useState({ width: 2, height: 24 });
 
     // controle global das fases (para saber ordem em que cada cor aparece)
     const faseIndexRef = useRef(0);              // contador global de fases
@@ -15,6 +18,25 @@ export default function Ranhura({ corSelecionada }) {
         corRef.current = corSelecionada;
     }, [corSelecionada]);
 
+    const ranhurasArray = useMemo(() => [...Array(quantidadeRanhuras)], [quantidadeRanhuras]);
+
+    // Calcula o gap e tamanho das ranhuras dinamicamente
+    useEffect(() => {
+        const calcularGapETamanho = () => {
+            if (!containerRef.current) return;
+            const larguraTotal = containerRef.current.offsetWidth;
+            const gap = Math.max(4, Math.min(54, larguraTotal / quantidadeRanhuras - 15));
+            setGapCalculado(gap);
+
+            const larguraRanhura = Math.min(4, larguraTotal / quantidadeRanhuras / 4);
+            const alturaRanhura = Math.max(12, Math.min(36, larguraTotal / quantidadeRanhuras));
+            setTamanhoRanhura({ width: larguraRanhura, height: alturaRanhura });
+        };
+        calcularGapETamanho();
+        window.addEventListener("resize", calcularGapETamanho);
+        return () => window.removeEventListener("resize", calcularGapETamanho);
+    }, [quantidadeRanhuras]);
+
     useEffect(() => {
         let pontoSuperior = null;
         let pontoInferior = null;
@@ -22,38 +44,30 @@ export default function Ranhura({ corSelecionada }) {
         let ultimoCliqueInferior = 0;
 
         const svg = document.getElementById('conexoes-svg');
+        if (!svg) return;
 
-        const ranhurasSuperior = Array.from(
-            document.querySelectorAll('#ranhuras-superior .w-1')
-        );
-        const ranhurasInferior = Array.from(
-            document.querySelectorAll('#ranhuras-inferior .w-1')
-        );
+        const ranhurasSuperior = Array.from(document.querySelectorAll('#ranhuras-superior .ranhura'));
+        const ranhurasInferior = Array.from(document.querySelectorAll('#ranhuras-inferior .ranhura'));
 
         const handlersSuperior = new Map();
         const handlersInferior = new Map();
 
         // transforma coordenadas absolutas em relativas ao SVG
         const toSvg = (x, y) => {
-            if (!svg) return { x, y };
             const pt = svg.createSVGPoint();
             pt.x = x;
             pt.y = y;
             const ctm = svg.getScreenCTM();
-            if (!ctm) return { x, y };
-            return pt.matrixTransform(ctm.inverse());
+            return ctm ? pt.matrixTransform(ctm.inverse()) : { x, y };
         };
 
         // =================== SUPERIOR (triângulos) ===================
         const desenharTriangulo = (r1, r2) => {
-            if (!svg) return;
-
             const rect1 = r1.getBoundingClientRect();
             const rect2 = r2.getBoundingClientRect();
-            const Y_SHIFT = 0;
 
-            const p1 = toSvg(rect1.left + rect1.width / 2, rect1.top + Y_SHIFT);
-            const p2 = toSvg(rect2.left + rect2.width / 2, rect2.top + Y_SHIFT);
+            const p1 = toSvg(rect1.left + rect1.width / 2, rect1.top);
+            const p2 = toSvg(rect2.left + rect2.width / 2, rect2.top);
 
             const xInicio = p1.x;
             const xFinal = p2.x;
@@ -85,7 +99,7 @@ export default function Ranhura({ corSelecionada }) {
             linha1.setAttribute('x2', midX);
             linha1.setAttribute('y2', peakY);
             linha1.setAttribute('stroke', corRef.current);
-            linha1.setAttribute('stroke-width', '3');
+            linha1.setAttribute('stroke-width', '4');
 
             const linha2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             linha2.setAttribute('x1', midX);
@@ -93,7 +107,7 @@ export default function Ranhura({ corSelecionada }) {
             linha2.setAttribute('x2', xFinal);
             linha2.setAttribute('y2', yBase);
             linha2.setAttribute('stroke', corRef.current);
-            linha2.setAttribute('stroke-width', '3');
+            linha2.setAttribute('stroke-width', '4');
 
             if (esquerdaParaDireita) {
                 linha1.setAttribute('x1', xInicio);
@@ -155,8 +169,6 @@ export default function Ranhura({ corSelecionada }) {
 
         // =================== INFERIOR (U e linha reta) ===================
         const desenharLigacaoInferior = (r1, r2) => {
-            if (!svg) return;
-
             const rect1 = r1.getBoundingClientRect();
             const rect2 = r2.getBoundingClientRect();
 
@@ -198,7 +210,7 @@ export default function Ranhura({ corSelecionada }) {
             linha1.setAttribute('x2', x1);
             linha1.setAttribute('y2', yBase);
             linha1.setAttribute('stroke', corRef.current);
-            linha1.setAttribute('stroke-width', '3');
+            linha1.setAttribute('stroke-width', '4');
 
             // linha da segunda ranhura até a base
             const linha2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -207,7 +219,7 @@ export default function Ranhura({ corSelecionada }) {
             linha2.setAttribute('x2', x2);
             linha2.setAttribute('y2', yBase);
             linha2.setAttribute('stroke', corRef.current);
-            linha2.setAttribute('stroke-width', '3');
+            linha2.setAttribute('stroke-width', '4');
 
             const linha3 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             linha3.setAttribute('x1', Math.min(x1, x2));
@@ -215,7 +227,7 @@ export default function Ranhura({ corSelecionada }) {
             linha3.setAttribute('x2', Math.max(x1, x2));
             linha3.setAttribute('y2', yBase);
             linha3.setAttribute('stroke', corRef.current);
-            linha3.setAttribute('stroke-width', '3');
+            linha3.setAttribute('stroke-width', '4');
 
             grupo.appendChild(linha1);
             grupo.appendChild(linha2);
@@ -236,6 +248,7 @@ export default function Ranhura({ corSelecionada }) {
             const p1 = toSvg(rect1.left + rect1.width / 2, rect1.bottom);
             const x1 = p1.x;
             const y1 = p1.y;
+          
             const yBase = toSvg(0, svgRect.height).y;
             const y2 = Math.max(y1, yBase);
 
@@ -291,22 +304,18 @@ export default function Ranhura({ corSelecionada }) {
                 r.classList.remove('selecionada');
             });
         };
-    }, []);
+    }, [quantidadeRanhuras]);
 
     // Popup
     const mostrarPopup = (x, y, elementoSVG) => {
         const popup = document.getElementById('popup-confirm');
         if (!popup) return;
-
         const container = popup.parentElement;
         if (!container) return;
-
         const containerRect = container.getBoundingClientRect();
-        const left = x - containerRect.left + 10;
-        const top = y - containerRect.top + 10;
 
-        popup.style.left = `${left}px`;
-        popup.style.top = `${top}px`;
+        popup.style.left = `${x - containerRect.left + 10}px`;
+        popup.style.top = `${y - containerRect.top + 10}px`;
         popup.style.position = 'absolute';
         popup.style.display = 'block';
         popup.style.zIndex = 1000;
@@ -338,30 +347,49 @@ export default function Ranhura({ corSelecionada }) {
                 </div>
             </div>
 
-            <section className="flex justify-center items-center h-full overflow-x-auto">
+            <section className="flex justify-center items-center h-full overflow-x-auto" ref={containerRef}>
                 <div className="scale-[0.50] md:scale-[0.70] 2xl:scale-[0.85] origin-center">
-                    <div className="relative flex flex-col items-center justify-center h-full w-full min-h-[52rem]">
-                        <svg id="conexoes-svg" width="100%" height="100%" className="absolute top-0 left-0"></svg>
+                    <div className="relative flex flex-col items-center justify-center h-full w-full min-h-[52rem] ml-[4rem] mt-8">
+                        <svg
+                            id="conexoes-svg"
+                            width="100%"
+                            height="100%"
+                            className="absolute top-0 left-0"
+                        ></svg>
 
-                        <div className="flex flex-row justify-center items-end gap-[32px] md:gap-[54px] mb-4" id="ranhuras-superior">
-                            <div className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
-                            {[...Array(23)].map((_, index) => (
-                                <div key={index} className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
+                        <div
+                            className="flex flex-row justify-center items-end mb-4"
+                            id="ranhuras-superior"
+                            style={{ gap: `${gapCalculado}px` }}
+                        >
+                            {ranhurasArray.map((_, index) => (
+                                <div
+                                    key={index}
+                                    className="ranhura relative cursor-pointer bg-black"
+                                    style={{ width: `${tamanhoRanhura.width}px`, height: `${tamanhoRanhura.height}px` }}
+                                ></div>
                             ))}
                         </div>
 
-                        <div className="flex justify-center gap-[34px] md:gap-[56px] mb-5">
-                            {[...Array(24)].map((_, index) => (
-                                <div key={index} className="w-[2px] text-center text-xs md:text-base -translate-x-[5px]">
+                        <div className="flex justify-center" style={{ gap: `${gapCalculado}px` }}>
+                            {ranhurasArray.map((_, index) => (
+                                <div key={index} className="w-[4px] text-center text-xs md:text-base -translate-x-[5px]">
                                     {index + 1}
                                 </div>
                             ))}
                         </div>
 
-                        <div className="flex flex-row justify-center items-end gap-[32px] md:gap-[54px]" id="ranhuras-inferior">
-                            <div className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
-                            {[...Array(23)].map((_, index) => (
-                                <div key={index} className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
+                        <div
+                            className="flex flex-row justify-center items-end mt-4"
+                            id="ranhuras-inferior"
+                            style={{ gap: `${gapCalculado}px` }}
+                        >
+                            {ranhurasArray.map((_, index) => (
+                                <div
+                                    key={index}
+                                    className="ranhura relative cursor-pointer bg-black"
+                                    style={{ width: `${tamanhoRanhura.width}px`, height: `${tamanhoRanhura.height}px` }}
+                                ></div>
                             ))}
                         </div>
                     </div>
