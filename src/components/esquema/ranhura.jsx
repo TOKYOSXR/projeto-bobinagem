@@ -10,6 +10,10 @@ export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
     const [gapCalculado, setGapCalculado] = useState(0);
     const [tamanhoRanhura, setTamanhoRanhura] = useState({ width: 2, height: 24 });
 
+    // controle global das fases (para saber ordem em que cada cor aparece)
+    const faseIndexRef = useRef(0);              // contador global de fases
+    const fasePorCorRef = useRef(new Map());     // mapeia cor -> ordem da fase
+
     useEffect(() => {
         corRef.current = corSelecionada;
     }, [corSelecionada]);
@@ -48,6 +52,7 @@ export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
         const handlersSuperior = new Map();
         const handlersInferior = new Map();
 
+        // transforma coordenadas absolutas em relativas ao SVG
         const toSvg = (x, y) => {
             const pt = svg.createSVGPoint();
             pt.x = x;
@@ -67,6 +72,7 @@ export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
             const xInicio = p1.x;
             const xFinal = p2.x;
             const yBase = Math.min(p1.y, p2.y);
+            const esquerdaParaDireita = xInicio < xFinal;
 
             const distancia = Math.abs(xFinal - xInicio);
             const distanciaArredondada = Math.round(distancia / 10) * 10;
@@ -102,6 +108,28 @@ export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
             linha2.setAttribute('y2', yBase);
             linha2.setAttribute('stroke', corRef.current);
             linha2.setAttribute('stroke-width', '4');
+
+            if (esquerdaParaDireita) {
+                linha1.setAttribute('x1', xInicio);
+                linha1.setAttribute('y1', yBase);
+                linha1.setAttribute('x2', midX);
+                linha1.setAttribute('y2', peakY);
+
+                linha2.setAttribute('x1', midX);
+                linha2.setAttribute('y1', peakY);
+                linha2.setAttribute('x2', xFinal);
+                linha2.setAttribute('y2', yBase);
+            } else {
+                linha1.setAttribute('x1', xInicio);
+                linha1.setAttribute('y1', yBase);
+                linha1.setAttribute('x2', xInicio - (xFinal - xInicio) / 2);
+                linha1.setAttribute('y2', peakY);
+
+                linha2.setAttribute('x1', xFinal);
+                linha2.setAttribute('y1', yBase);
+                linha2.setAttribute('x2', xFinal + (xFinal - xInicio) / 2);
+                linha2.setAttribute('y2', yBase - altura);
+            }
 
             grupo.appendChild(linha1);
             grupo.appendChild(linha2);
@@ -152,12 +180,30 @@ export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
             const y1 = p1.y;
             const y2 = p2.y;
 
-            const altura = Math.abs(y2 - y1);
-            const yBase = Math.max(y1, y2) + altura;
+            // base natural do SVG
+            const svgRect = svg.getBoundingClientRect();
+            const yBaseOriginal = toSvg(0, svgRect.height).y;
 
+            // verifica em qual "ordem" essa cor apareceu
+            const fasePorCor = fasePorCorRef.current;
+            let ordemFase = fasePorCor.get(corRef.current);
+
+            if (ordemFase === undefined) {
+                // se a cor nunca apareceu, registra uma nova ordem
+                ordemFase = faseIndexRef.current;
+                fasePorCor.set(corRef.current, ordemFase);
+                faseIndexRef.current++;
+            }
+
+            // cada fase sobe 40px (primeira embaixo, próximas mais acima)
+            const deslocamento = ordemFase * 40;
+            const yBase = yBaseOriginal + deslocamento;
+
+            // desenha ligação em "U"
             const grupo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             grupo.setAttribute("pointer-events", "visiblePainted");
 
+             // linha da primeira ranhura até a base
             const linha1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             linha1.setAttribute('x1', x1);
             linha1.setAttribute('y1', y1);
@@ -166,6 +212,7 @@ export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
             linha1.setAttribute('stroke', corRef.current);
             linha1.setAttribute('stroke-width', '4');
 
+            // linha da segunda ranhura até a base
             const linha2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             linha2.setAttribute('x1', x2);
             linha2.setAttribute('y1', y2);
@@ -195,19 +242,21 @@ export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
         };
 
         const desenharLinhaVerticalInferior = (r1) => {
+            if (!svg) return;
             const svgRect = svg.getBoundingClientRect();
             const rect1 = r1.getBoundingClientRect();
             const p1 = toSvg(rect1.left + rect1.width / 2, rect1.bottom);
-
             const x1 = p1.x;
             const y1 = p1.y;
-            const y2 = svgRect.height;
+          
+            const yBase = toSvg(0, svgRect.height).y;
+            const y2 = Math.max(y1, yBase);
 
             const linha = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             linha.setAttribute('x1', x1);
             linha.setAttribute('y1', y1);
             linha.setAttribute('x2', x1);
-            linha.setAttribute('y2', y2);
+            linha.setAttribute('y2', y2 + 200);
             linha.setAttribute('stroke', corRef.current);
             linha.setAttribute('stroke-width', '3');
             linha.setAttribute('pointer-events', 'visiblePainted');
@@ -221,6 +270,7 @@ export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
         };
 
         const handleMouseDownInferior = (ranhura) => (event) => {
+            const agora = Date.now();
             if (!pontoInferior) {
                 pontoInferior = ranhura;
                 ranhura.classList.add('selecionada');
@@ -256,6 +306,7 @@ export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
         };
     }, [quantidadeRanhuras]);
 
+    // Popup
     const mostrarPopup = (x, y, elementoSVG) => {
         const popup = document.getElementById('popup-confirm');
         if (!popup) return;
@@ -272,8 +323,18 @@ export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
         const btnSim = document.getElementById('btn-sim');
         const btnCancelar = document.getElementById('btn-cancelar');
 
-        if (btnSim) btnSim.onclick = () => { elementoSVG.remove(); popup.style.display = 'none'; };
-        if (btnCancelar) btnCancelar.onclick = () => { popup.style.display = 'none'; };
+        if (btnSim) {
+            btnSim.onclick = () => {
+                elementoSVG.remove();
+                popup.style.display = 'none';
+            };
+        }
+
+        if (btnCancelar) {
+            btnCancelar.onclick = () => {
+                popup.style.display = 'none';
+            };
+        }
     };
 
     return (
