@@ -7,6 +7,10 @@ export default function Ranhura({ corSelecionada }) {
     const corRef = useRef(corSelecionada);
     const alturasPorDistanciaRef = useRef(new Map());
 
+    // controle global das fases (para saber ordem em que cada cor aparece)
+    const faseIndexRef = useRef(0);              // contador global de fases
+    const fasePorCorRef = useRef(new Map());     // mapeia cor -> ordem da fase
+
     useEffect(() => {
         corRef.current = corSelecionada;
     }, [corSelecionada]);
@@ -29,6 +33,7 @@ export default function Ranhura({ corSelecionada }) {
         const handlersSuperior = new Map();
         const handlersInferior = new Map();
 
+        // transforma coordenadas absolutas em relativas ao SVG
         const toSvg = (x, y) => {
             if (!svg) return { x, y };
             const pt = svg.createSVGPoint();
@@ -53,6 +58,7 @@ export default function Ranhura({ corSelecionada }) {
             const xInicio = p1.x;
             const xFinal = p2.x;
             const yBase = Math.min(p1.y, p2.y);
+            const esquerdaParaDireita = xInicio < xFinal;
 
             const distancia = Math.abs(xFinal - xInicio);
             const distanciaArredondada = Math.round(distancia / 10) * 10;
@@ -88,6 +94,28 @@ export default function Ranhura({ corSelecionada }) {
             linha2.setAttribute('y2', yBase);
             linha2.setAttribute('stroke', corRef.current);
             linha2.setAttribute('stroke-width', '3');
+
+            if (esquerdaParaDireita) {
+                linha1.setAttribute('x1', xInicio);
+                linha1.setAttribute('y1', yBase);
+                linha1.setAttribute('x2', midX);
+                linha1.setAttribute('y2', peakY);
+
+                linha2.setAttribute('x1', midX);
+                linha2.setAttribute('y1', peakY);
+                linha2.setAttribute('x2', xFinal);
+                linha2.setAttribute('y2', yBase);
+            } else {
+                linha1.setAttribute('x1', xInicio);
+                linha1.setAttribute('y1', yBase);
+                linha1.setAttribute('x2', xInicio - (xFinal - xInicio) / 2);
+                linha1.setAttribute('y2', peakY);
+
+                linha2.setAttribute('x1', xFinal);
+                linha2.setAttribute('y1', yBase);
+                linha2.setAttribute('x2', xFinal + (xFinal - xInicio) / 2);
+                linha2.setAttribute('y2', yBase - altura);
+            }
 
             grupo.appendChild(linha1);
             grupo.appendChild(linha2);
@@ -140,11 +168,30 @@ export default function Ranhura({ corSelecionada }) {
             const y1 = p1.y;
             const y2 = p2.y;
 
-            const yBase = svg.clientHeight;
+            // base natural do SVG
+            const svgRect = svg.getBoundingClientRect();
+            const yBaseOriginal = toSvg(0, svgRect.height).y;
 
+            // verifica em qual "ordem" essa cor apareceu
+            const fasePorCor = fasePorCorRef.current;
+            let ordemFase = fasePorCor.get(corRef.current);
+
+            if (ordemFase === undefined) {
+                // se a cor nunca apareceu, registra uma nova ordem
+                ordemFase = faseIndexRef.current;
+                fasePorCor.set(corRef.current, ordemFase);
+                faseIndexRef.current++;
+            }
+
+            // cada fase sobe 40px (primeira embaixo, próximas mais acima)
+            const deslocamento = ordemFase * 40;
+            const yBase = yBaseOriginal + deslocamento;
+
+            // desenha ligação em "U"
             const grupo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             grupo.setAttribute("pointer-events", "visiblePainted");
 
+             // linha da primeira ranhura até a base
             const linha1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             linha1.setAttribute('x1', x1);
             linha1.setAttribute('y1', y1);
@@ -153,6 +200,7 @@ export default function Ranhura({ corSelecionada }) {
             linha1.setAttribute('stroke', corRef.current);
             linha1.setAttribute('stroke-width', '3');
 
+            // linha da segunda ranhura até a base
             const linha2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             linha2.setAttribute('x1', x2);
             linha2.setAttribute('y1', y2);
@@ -181,30 +229,21 @@ export default function Ranhura({ corSelecionada }) {
             svg.appendChild(grupo);
         };
 
-        // ============== LINHA RETA =====================
         const desenharLinhaVerticalInferior = (r1) => {
             if (!svg) return;
-
-            // const pos = ranhura.getBoundingClientRect();
             const svgRect = svg.getBoundingClientRect();
-
             const rect1 = r1.getBoundingClientRect();
-
             const p1 = toSvg(rect1.left + rect1.width / 2, rect1.bottom);
-
             const x1 = p1.x;
             const y1 = p1.y;
-
-            // Define o ponto final da linha como o fundo do SV
             const yBase = toSvg(0, svgRect.height).y;
-            // Garante que o ponto final (y2) seja maior que o ponto inicial (y1)
             const y2 = Math.max(y1, yBase);
 
             const linha = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             linha.setAttribute('x1', x1);
             linha.setAttribute('y1', y1);
             linha.setAttribute('x2', x1);
-            linha.setAttribute('y2', y2); // vai até o fundo do SVG
+            linha.setAttribute('y2', y2 + 200);
             linha.setAttribute('stroke', corRef.current);
             linha.setAttribute('stroke-width', '3');
             linha.setAttribute('pointer-events', 'visiblePainted');
@@ -217,28 +256,21 @@ export default function Ranhura({ corSelecionada }) {
             svg.appendChild(linha);
         };
 
-
-
         const handleMouseDownInferior = (ranhura) => (event) => {
             const agora = Date.now();
-
             if (!pontoInferior) {
-                // Primeiro clique
                 pontoInferior = ranhura;
                 ranhura.classList.add('selecionada');
             } else if (pontoInferior === ranhura) {
-                // Mesmo clique: cria linha vertical
                 desenharLinhaVerticalInferior(ranhura);
                 pontoInferior.classList.remove('selecionada');
                 pontoInferior = null;
             } else {
-                // Segundo clique em ranhura diferente: cria "U"
                 desenharLigacaoInferior(pontoInferior, ranhura);
                 pontoInferior.classList.remove('selecionada');
                 pontoInferior = null;
             }
         };
-
 
         ranhurasInferior.forEach((r) => {
             r.classList.add('ranhura', 'inferior');
@@ -261,7 +293,7 @@ export default function Ranhura({ corSelecionada }) {
         };
     }, []);
 
-    // Popup de confirmação
+    // Popup
     const mostrarPopup = (x, y, elementoSVG) => {
         const popup = document.getElementById('popup-confirm');
         if (!popup) return;
@@ -284,7 +316,6 @@ export default function Ranhura({ corSelecionada }) {
 
         if (btnSim) {
             btnSim.onclick = () => {
-                // Remove o grupo inteiro imediatamente
                 elementoSVG.remove();
                 popup.style.display = 'none';
             };
@@ -299,7 +330,6 @@ export default function Ranhura({ corSelecionada }) {
 
     return (
         <>
-            {/* Popup de confirmação */}
             <div id="popup-confirm" className="absolute hidden bg-white border p-4 rounded shadow z-50">
                 <p>Deseja remover esta ligação?</p>
                 <div className="flex gap-2 mt-2">
@@ -311,15 +341,8 @@ export default function Ranhura({ corSelecionada }) {
             <section className="flex justify-center items-center h-full overflow-x-auto">
                 <div className="scale-[0.50] md:scale-[0.70] 2xl:scale-[0.85] origin-center">
                     <div className="relative flex flex-col items-center justify-center h-full w-full min-h-[52rem]">
-                        {/* SVG para conexões */}
-                        <svg
-                            id="conexoes-svg"
-                            width="100%"
-                            height="100%"
-                            className="absolute top-0 left-0"
-                        ></svg>
+                        <svg id="conexoes-svg" width="100%" height="100%" className="absolute top-0 left-0"></svg>
 
-                        {/* Ranhuras Superiores */}
                         <div className="flex flex-row justify-center items-end gap-[32px] md:gap-[54px] mb-4" id="ranhuras-superior">
                             <div className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
                             {[...Array(23)].map((_, index) => (
@@ -327,7 +350,6 @@ export default function Ranhura({ corSelecionada }) {
                             ))}
                         </div>
 
-                        {/* Numeração */}
                         <div className="flex justify-center gap-[34px] md:gap-[56px] mb-5">
                             {[...Array(24)].map((_, index) => (
                                 <div key={index} className="w-[2px] text-center text-xs md:text-base -translate-x-[5px]">
@@ -336,7 +358,6 @@ export default function Ranhura({ corSelecionada }) {
                             ))}
                         </div>
 
-                        {/* Ranhuras Inferiores */}
                         <div className="flex flex-row justify-center items-end gap-[32px] md:gap-[54px]" id="ranhuras-inferior">
                             <div className="w-1 h-6 md:h-9 bg-black relative cursor-pointer"></div>
                             {[...Array(23)].map((_, index) => (
