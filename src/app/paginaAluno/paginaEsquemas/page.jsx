@@ -11,12 +11,15 @@ export default function PaginaEsquemas() {
     // Estado para armazenar a cor selecionada no sidebar
     const [corSelecionada, setCorSelecionada] = useState("black");
 
+    // Estado para armazenar a quantidade de ranhuras (pode ser null)
+    const [quantidadeRanhuras, setQuantidadeRanhuras] = useState(null);
+
     return (
-        <div className="relative">
+        <div className="relative min-h-screen">
             <HeaderAluno />
 
             {/* Sidebar esquerdo */}
-            <SidebarEsquerdo />
+            <SidebarEsquerdo setQuantidadeRanhuras={setQuantidadeRanhuras} />
 
             {/* Sidebar direito - passa cor e função para alterar */}
             <SidebarDireito 
@@ -24,8 +27,13 @@ export default function PaginaEsquemas() {
                 setCorSelecionada={setCorSelecionada} 
             />
 
-            {/* Componente de esquema (ranhura) recebe a cor para pintar bobinas */}
-            <Ranhura corSelecionada={corSelecionada} />
+            {/* Componente de esquema (Ranhura) recebe a cor e a quantidade de ranhuras */}
+            {quantidadeRanhuras && (
+                <Ranhura 
+                    corSelecionada={corSelecionada} 
+                    quantidadeRanhuras={quantidadeRanhuras} 
+                />
+            )}
         </div>
     );
 }
