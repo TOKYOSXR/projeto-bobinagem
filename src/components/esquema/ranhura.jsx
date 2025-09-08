@@ -41,7 +41,6 @@ export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
         let pontoSuperior = null;
         let pontoInferior = null;
         let ultimoCliqueSuperior = 0;
-        let ultimoCliqueInferior = 0;
 
         const svg = document.getElementById('conexoes-svg');
         if (!svg) return;
@@ -169,9 +168,11 @@ export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
 
         // =================== INFERIOR (U e linha reta) ===================
         const desenharLigacaoInferior = (r1, r2) => {
-            const rect1 = r1.getBoundingClientRect();
+            // pega posição das duas ranhuras clicadas (inferiores)
+            const rect1 = r1.getBoundingClientRect(); 
             const rect2 = r2.getBoundingClientRect();
 
+            // converte pro sistema de coordenadas do SVG
             const p1 = toSvg(rect1.left + rect1.width / 2, rect1.bottom);
             const p2 = toSvg(rect2.left + rect2.width / 2, rect2.bottom);
 
@@ -184,26 +185,19 @@ export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
             const svgRect = svg.getBoundingClientRect();
             const yBaseOriginal = toSvg(0, svgRect.height).y;
 
-            // verifica em qual "ordem" essa cor apareceu
-            const fasePorCor = fasePorCorRef.current;
-            let ordemFase = fasePorCor.get(corRef.current);
-
-            if (ordemFase === undefined) {
-                // se a cor nunca apareceu, registra uma nova ordem
-                ordemFase = faseIndexRef.current;
-                fasePorCor.set(corRef.current, ordemFase);
-                faseIndexRef.current++;
-            }
+            // toda ligação nova sobe uma fase, independente da cor
+            let ordemFase = faseIndexRef.current;
+            faseIndexRef.current++;
 
             // cada fase sobe 40px (primeira embaixo, próximas mais acima)
             const deslocamento = ordemFase * 40;
             const yBase = yBaseOriginal + deslocamento;
 
-            // desenha ligação em "U"
+            // cria grupo (g) para conter as 3 linhas da ligação em U
             const grupo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             grupo.setAttribute("pointer-events", "visiblePainted");
 
-             // linha da primeira ranhura até a base
+            // linha da primeira ranhura até a base
             const linha1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             linha1.setAttribute('x1', x1);
             linha1.setAttribute('y1', y1);
@@ -221,6 +215,7 @@ export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
             linha2.setAttribute('stroke', corRef.current);
             linha2.setAttribute('stroke-width', '4');
 
+             // linha horizontal ligando os dois pontos na base
             const linha3 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             linha3.setAttribute('x1', Math.min(x1, x2));
             linha3.setAttribute('y1', yBase);
@@ -229,15 +224,18 @@ export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
             linha3.setAttribute('stroke', corRef.current);
             linha3.setAttribute('stroke-width', '4');
 
+            // adiciona as 3 linhas dentro do grupo
             grupo.appendChild(linha1);
             grupo.appendChild(linha2);
             grupo.appendChild(linha3);
 
+              // evento para popup (remover ligação)
             grupo.addEventListener("click", (e) => {
                 e.stopPropagation();
                 mostrarPopup(e.clientX, e.clientY, grupo);
             });
 
+            // joga o grupo no SVG
             svg.appendChild(grupo);
         };
 
@@ -248,7 +246,7 @@ export default function Ranhura({ corSelecionada, quantidadeRanhuras = 24 }) {
             const p1 = toSvg(rect1.left + rect1.width / 2, rect1.bottom);
             const x1 = p1.x;
             const y1 = p1.y;
-          
+
             const yBase = toSvg(0, svgRect.height).y;
             const y2 = Math.max(y1, yBase);
 
